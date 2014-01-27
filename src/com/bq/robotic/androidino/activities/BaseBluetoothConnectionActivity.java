@@ -24,7 +24,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * It provides helper methods that can be used to find and connect devices.
 	 */
 
-	private static final String TAG = "BaseConnectActivity";
+	private static final String LOG_TAG = "BaseConnectActivity";
 
 	// Name of the connected device
 	protected String mConnectedDeviceName = null;
@@ -33,7 +33,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	// Local Bluetooth adapter
 	protected BluetoothAdapter mBluetoothAdapter = null;
 	// Member object for the BT connect services
-	protected BluetoothConnection mConnectService = null;
+	protected BluetoothConnection mBluetoothConnection = null;
 	
 	// Store the state of the Bluetooth before this app was executed in order to leave it as it was
 	private boolean wasBluetoothEnabled = false;
@@ -67,7 +67,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 			startActivityForResult(enableIntent, AndroidinoConstants.REQUEST_ENABLE_BT);
 
 		} else { // Otherwise, setup BT connection
-			if (mConnectService == null)
+			if (mBluetoothConnection == null)
 				setupSession();
 		}
 	}
@@ -80,12 +80,12 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		// not enabled during onStart(), so we were paused to enable it...
 		// onResume() will be called when ACTION_REQUEST_ENABLE activity
 		// returns.
-		if (mConnectService != null) {
+		if (mBluetoothConnection != null) {
 			// Only if the state is STATE_NONE, do we know that we haven't
 			// started already
-			if (mConnectService.getState() == AndroidinoConstants.STATE_NONE) {
+			if (mBluetoothConnection.getState() == AndroidinoConstants.STATE_NONE) {
 				// Start the Bluetooth services
-				mConnectService.start();
+				mBluetoothConnection.start();
 			}
 		}
 	}
@@ -106,7 +106,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 */
 	protected void stopApp() {
 		// Stop the Bluetooth connect services
-		if (mConnectService != null) mConnectService.stop();
+		if (mBluetoothConnection != null) mBluetoothConnection.stop();
 		
 		// Disable the Bluetooth if it was disable before executing this app
 		if (mBluetoothAdapter.isEnabled() && !wasBluetoothEnabled) {
@@ -121,7 +121,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	private void setupSession() {
 
 		// Initialize the BluetoothConnectService to perform bluetooth connections
-		mConnectService = new BluetoothConnection(this, mHandler);
+		mBluetoothConnection = new BluetoothConnection(this, mHandler);
 
 		// Initialize the buffer for outgoing messages
 		mOutStringBuffer = new StringBuffer("");
@@ -147,7 +147,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 */
 	protected void sendMessage(String message) {
 		// Check that we're actually connected before trying anything
-		if (mConnectService.getState() != AndroidinoConstants.STATE_CONNECTED) {
+		if (mBluetoothConnection.getState() != AndroidinoConstants.STATE_CONNECTED) {
 			Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
 			return;
 		}
@@ -156,7 +156,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		if (message.length() > 0) {
 			// Get the message bytes and tell the BluetoothConnectService to write
 			byte[] send = message.getBytes();
-			mConnectService.write(send);
+			mBluetoothConnection.write(send);
 
 			// Reset out string buffer to zero and clear the edit text field
 			mOutStringBuffer.setLength(0);
@@ -189,7 +189,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		// Get the BluetoothDevice object
 		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 		// Attempt to connect to the device
-		mConnectService.connect(device);
+		mBluetoothConnection.connect(device);
 	}
 
 	private void connectDevice(Intent data) {
@@ -198,7 +198,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		// Get the BluetoothDevice object
 		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 		// Attempt to connect to the device
-		mConnectService.connect(device);
+		mBluetoothConnection.connect(device);
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -216,7 +216,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 				setupSession();
 			} else {
 				// User did not enable Bluetooth or an error occurred
-				Log.d(TAG, "BT not enabled");
+				Log.d(LOG_TAG, "BT not enabled");
 				Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
 				finish();
 			}
@@ -269,7 +269,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * @param connectionState Message types sent from the BluetoothConnectService Handler
 	 */
 	public void onConnectionStatusUpdate(int connectionState) {
-		Log.d(TAG, "Connectivity changed  : " + connectionState);
+		Log.d(LOG_TAG, "Connectivity changed  : " + connectionState);
 	}
 
 	/**
@@ -277,7 +277,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * @param message data that was sent to remote device
 	 */
 	public void onWriteSuccess(String message) {
-		Log.d(TAG, "Response message : " + message);
+		Log.d(LOG_TAG, "Response message : " + message);
 	}
 
 	/**

@@ -45,8 +45,7 @@ import android.widget.TextView;
  */
 public class DeviceListDialog extends Dialog {
     // Debugging
-    private static final String TAG = "DeviceListActivity";
-    private static final boolean D = true;
+    private static final String LOG_TAG = "DeviceListActivity";
 
     // Member fields
     private BluetoothAdapter mBtAdapter;
@@ -139,7 +138,7 @@ public class DeviceListDialog extends Dialog {
      * Start device discover with the BluetoothAdapter
      */
     private void doDiscovery() {
-        if (D) Log.d(TAG, "doDiscovery()");
+        if (AndroidinoConstants.D) Log.d(LOG_TAG, "doDiscovery()");
 
         // Indicate scanning in the title
 //        setProgressBarIndeterminateVisibility(true);

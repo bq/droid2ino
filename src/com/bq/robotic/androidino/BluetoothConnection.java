@@ -29,12 +29,12 @@ import com.bq.robotic.androidino.utils.AndroidinoConstants;
 
 public class BluetoothConnection {
 
-	private static final String TAG = "BluetoothConnection";
+	private static final String LOG_TAG = "BluetoothConnection";
 
     // Member fields
     private final BluetoothAdapter mAdapter;
     private final Handler mHandler;
-    private AcceptThread mSecureAcceptThread;
+    private AcceptThread mAcceptThread;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
@@ -83,9 +83,9 @@ public class BluetoothConnection {
         setState(AndroidinoConstants.STATE_LISTEN);
 
         // Start the thread to listen on a BluetoothServerSocket
-        if (mSecureAcceptThread == null) {
-            mSecureAcceptThread = new AcceptThread();
-            mSecureAcceptThread.start();
+        if (mAcceptThread == null) {
+        	mAcceptThread = new AcceptThread();
+        	mAcceptThread.start();
         }
     }
 
@@ -125,9 +125,9 @@ public class BluetoothConnection {
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
         // Cancel the accept thread because we only want to connect to one device
-        if (mSecureAcceptThread != null) {
-            mSecureAcceptThread.cancel();
-            mSecureAcceptThread = null;
+        if (mAcceptThread != null) {
+        	mAcceptThread.cancel();
+        	mAcceptThread = null;
         }
 
         // Start the thread to manage the connection and perform transmissions
@@ -159,9 +159,9 @@ public class BluetoothConnection {
             mConnectedThread = null;
         }
 
-        if (mSecureAcceptThread != null) {
-            mSecureAcceptThread.cancel();
-            mSecureAcceptThread = null;
+        if (mAcceptThread != null) {
+        	mAcceptThread.cancel();
+        	mAcceptThread = null;
         }
 
         setState(AndroidinoConstants.STATE_NONE);
@@ -231,7 +231,7 @@ public class BluetoothConnection {
                 tmp = mAdapter.listenUsingRfcommWithServiceRecord(AndroidinoConstants.SOCKET_NAME,
                 		AndroidinoConstants.MY_UUID);
             } catch (IOException e) {
-                Log.e(TAG, "Socket listen() failed", e);
+                Log.e(LOG_TAG, "Socket listen() failed", e);
             }
             mmServerSocket = tmp;
         }
@@ -248,7 +248,7 @@ public class BluetoothConnection {
                     // successful connection or an exception
                     socket = mmServerSocket.accept();
                 } catch (IOException e) {
-                    Log.e(TAG, "Socket accept() failed", e);
+                    Log.e(LOG_TAG, "Socket accept() failed", e);
                     break;
                 }
 
@@ -267,7 +267,7 @@ public class BluetoothConnection {
                             try {
                                 socket.close();
                             } catch (IOException e) {
-                                Log.e(TAG, "Could not close unwanted socket", e);
+                                Log.e(LOG_TAG, "Could not close unwanted socket", e);
                             }
                             break;
                         }
@@ -281,7 +281,7 @@ public class BluetoothConnection {
             try {
                 mmServerSocket.close();
             } catch (IOException e) {
-                Log.e(TAG, "Socket close() of server failed", e);
+                Log.e(LOG_TAG, "Socket close() of server failed", e);
             }
         }
     }
@@ -306,13 +306,13 @@ public class BluetoothConnection {
                 tmp = device.createRfcommSocketToServiceRecord(
                 		AndroidinoConstants.MY_UUID);
             } catch (IOException e) {
-                Log.e(TAG, "Socket create() failed", e);
+                Log.e(LOG_TAG, "Socket create() failed", e);
             }
             mmSocket = tmp;
         }
 
         public void run() {
-            Log.i(TAG, "BEGIN mConnectThread");
+            Log.i(LOG_TAG, "BEGIN mConnectThread");
             setName(AndroidinoConstants.CONNECT_THREAD_NAME);
 
             // Always cancel discovery because it will slow down a connection
@@ -328,7 +328,7 @@ public class BluetoothConnection {
                 try {
                     mmSocket.close();
                 } catch (IOException e2) {
-                    Log.e(TAG, "unable to close() socket during connection failure", e2);
+                    Log.e(LOG_TAG, "unable to close() socket during connection failure", e2);
                 }
                 connectionFailed();
                 return;
@@ -347,7 +347,7 @@ public class BluetoothConnection {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-                Log.e(TAG, "close() of connect socket failed", e);
+                Log.e(LOG_TAG, "close() of connect socket failed", e);
             }
         }
     }
@@ -362,7 +362,7 @@ public class BluetoothConnection {
         private final OutputStream mmOutStream;
 
         public ConnectedThread(BluetoothSocket socket) {
-            Log.d(TAG, "create ConnectedThread");
+            Log.d(LOG_TAG, "create ConnectedThread");
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
@@ -372,7 +372,7 @@ public class BluetoothConnection {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
-                Log.e(TAG, "temp sockets not created", e);
+                Log.e(LOG_TAG, "temp sockets not created", e);
             }
 
             mmInStream = tmpIn;
@@ -380,7 +380,7 @@ public class BluetoothConnection {
         }
 
         public void run() {
-            Log.i(TAG, "BEGIN mConnectedThread");
+            Log.i(LOG_TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[1024];
             int bytes;
 
@@ -394,7 +394,7 @@ public class BluetoothConnection {
                     mHandler.obtainMessage(AndroidinoConstants.MESSAGE_READ, bytes, -1, buffer)
                             .sendToTarget();
                 } catch (IOException e) {
-                    Log.e(TAG, "disconnected", e);
+                    Log.e(LOG_TAG, "disconnected", e);
                     connectionLost();
                     // Start the service over to restart listening mode
                     BluetoothConnection.this.start();
@@ -414,7 +414,7 @@ public class BluetoothConnection {
                 // Share the sent message back to the UI Activity
                 mHandler.obtainMessage(AndroidinoConstants.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
             } catch (IOException e) {
-                Log.e(TAG, "Exception during write", e);
+                Log.e(LOG_TAG, "Exception during write", e);
             }
         }
 
@@ -422,7 +422,7 @@ public class BluetoothConnection {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-                Log.e(TAG, "close() of connect socket failed", e);
+                Log.e(LOG_TAG, "close() of connect socket failed", e);
             }
         }
     }
