@@ -34,6 +34,9 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	protected BluetoothAdapter mBluetoothAdapter = null;
 	// Member object for the BT connect services
 	protected BluetoothConnection mConnectService = null;
+	
+	// Store the state of the Bluetooth before this app was executed in order to leave it as it was
+	private boolean wasBluetoothEnabled = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,10 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 			Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
 			finish();
 			return;
+		}
+		
+		if(mBluetoothAdapter.isEnabled()) {
+			wasBluetoothEnabled = true;
 		}
 	}
 
@@ -82,7 +89,32 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 			}
 		}
 	}
-
+	
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		
+		stopApp();
+	}
+	
+	
+	/**
+	 * This method stops all threads of the BluetoothConnection and disable the Bluetooth in the
+	 * mobile device if it was disabled before this app
+	 * This is protected in case that a child wants to close when the user press a button or other view
+	 */
+	protected void stopApp() {
+		// Stop the Bluetooth connect services
+		if (mConnectService != null) mConnectService.stop();
+		
+		// Disable the Bluetooth if it was disable before executing this app
+		if (mBluetoothAdapter.isEnabled() && !wasBluetoothEnabled) {
+			mBluetoothAdapter.disable();
+		}
+	}
+	
+	
 	/**
 	 * create a new bluetooth connection
 	 */
@@ -95,13 +127,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		mOutStringBuffer = new StringBuffer("");
 
 	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		// Stop the Bluetooth connect services
-		if (mConnectService != null) mConnectService.stop();
-	}
+	
 
 	/**
 	 * Helper method to start discovering devices. 

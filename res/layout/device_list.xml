@@ -16,8 +16,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent" >
+    
     <TextView android:id="@+id/title_paired_devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,6 +26,7 @@
         android:background="#666"
         android:textColor="#fff"
         android:paddingLeft="5dp"
+        android:layout_marginTop="3dp"
     />
     <ListView android:id="@+id/paired_devices"
         android:layout_width="match_parent"
