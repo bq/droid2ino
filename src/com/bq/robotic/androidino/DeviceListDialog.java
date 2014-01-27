@@ -17,6 +17,8 @@ package com.bq.robotic.androidino;
 
 import java.util.Set;
 
+import com.bq.robotic.androidino.utils.AndroidinoConstants;
+
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -45,9 +47,6 @@ public class DeviceListDialog extends Dialog {
     // Debugging
     private static final String TAG = "DeviceListActivity";
     private static final boolean D = true;
-
-    // Return Intent extra
-    public static String EXTRA_DEVICE_ADDRESS = "device_address";
 
     // Member fields
     private BluetoothAdapter mBtAdapter;
@@ -114,7 +113,8 @@ public class DeviceListDialog extends Dialog {
         if (pairedDevices.size() > 0) {
             findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
-                mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                mPairedDevicesArrayAdapter.add(device.getName() + AndroidinoConstants.NEW_LINE_CHARACTER + 
+                		device.getAddress());
             }
         } else {
             String noDevices = getContext().getResources().getText(R.string.none_paired).toString();
@@ -169,11 +169,11 @@ public class DeviceListDialog extends Dialog {
 
             // Create the result Intent and include the MAC address
             Intent intent = new Intent();
-            intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
+            intent.putExtra(AndroidinoConstants.EXTRA_DEVICE_ADDRESS, address);
 
             // Set result and finish this Activity
             Bundle values = new Bundle();
-            values.putString(EXTRA_DEVICE_ADDRESS, address);
+            values.putString(AndroidinoConstants.EXTRA_DEVICE_ADDRESS, address);
             if(mListener != null) mListener.onComplete(values);
             dismiss();
         }
@@ -192,7 +192,7 @@ public class DeviceListDialog extends Dialog {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 // If it's already paired, skip it, because it's been listed already
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                    mNewDevicesArrayAdapter.add(device.getName() + AndroidinoConstants.NEW_LINE_CHARACTER + device.getAddress());
                 }
             // When discovery is finished, change the Activity title
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {

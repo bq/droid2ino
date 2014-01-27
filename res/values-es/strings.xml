@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="app_name">Androidino</string>
+
+    <!-- BluetoothChat -->
+    <string name="send">Enviar</string>
+    <string name="not_connected">No estás conectado a ningún dispositivo</string>
+    <string name="bt_not_enabled_leaving">El Bluetooth no está activado. Saliendo de la aplicación&#8230;</string>
+    <string name="title_connecting">Conectando&#8230;</string>
+    <string name="title_connected_to">Conectado a <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="title_not_connected">No conectado</string>
+
+    <!-- DeviceListActivity -->
+    <string name="scanning">Buscando dispositivos&#8230;</string>
+    <string name="select_device">Selecciona un dispositivo para conectar</string>
+    <string name="none_paired">No hay dispositivos emparejados</string>
+    <string name="none_found">No se han encontrado dispositivos</string>
+    <string name="title_paired_devices">Dispositivos Emparejados</string>
+    <string name="title_other_devices">Otros Dispositivos Disponibles</string>
+    <string name="button_scan">Buscar dispositivos</string>
+
+    <!-- Options Menu -->
+    <string name="connect">Conectar a un dispositivo</string>
+    <string name="discoverable">Hacer el dispositivo visible</string>
+    
+    <!-- BaseBluetoohConnection -->
+    <string name="connected_to">"Conectado a "</string>
+    
+    <!-- Errors -->
+    <string name="bluetooth_not_available">El Bluetooth no está disponible</string>
+    <string name="connecting_bluetooth_error">No fue posible conectar con el dispositivo</string>
+    <string name="connection_lost_error">Se perdió la conexión con el dispositivo</string>
+
+</resources>

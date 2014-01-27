@@ -6,14 +6,14 @@
     <!-- BluetoothChat -->
     <string name="send">Send</string>
     <string name="not_connected">You are not connected to a device</string>
-    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving Bluetooth Chat.</string>
-    <string name="title_connecting">connecting&#8230;</string>
-    <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
-    <string name="title_not_connected">not connected</string>
+    <string name="bt_not_enabled_leaving">Bluetooth was not enabled. Leaving the app.</string>
+    <string name="title_connecting">Connecting&#8230;</string>
+    <string name="title_connected_to">Connected to <xliff:g id="device_name">%1$s</xliff:g></string>
+    <string name="title_not_connected">Not connected</string>
 
     <!-- DeviceListActivity -->
-    <string name="scanning">scanning for devices&#8230;</string>
-    <string name="select_device">select a device to connect</string>
+    <string name="scanning">Scanning for devices&#8230;</string>
+    <string name="select_device">Select a device to connect</string>
     <string name="none_paired">No devices have been paired</string>
     <string name="none_found">No devices found</string>
     <string name="title_paired_devices">Paired Devices</string>
@@ -21,8 +21,15 @@
     <string name="button_scan">Scan for devices</string>
 
     <!-- Options Menu -->
-    <string name="secure_connect">Connect a device - Secure</string>
-    <string name="insecure_connect">Connect a device - Insecure</string>
+    <string name="connect">Connect a device</string>
     <string name="discoverable">Make discoverable</string>
+    
+    <!-- BaseBluetoohConnection -->
+    <string name="connected_to">"Connected to "</string>
+    
+    <!-- Errors -->
+    <string name="bluetooth_not_available">Bluetooth is not available</string>
+    <string name="connecting_bluetooth_error">Unable to connect device</string>
+    <string name="connection_lost_error">Device connection was lost</string>
 
 </resources>
