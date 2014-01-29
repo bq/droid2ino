@@ -238,24 +238,27 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 					break;
 				}
 				break;
+				
 			case AndroidinoConstants.MESSAGE_WRITE:
 				byte[] writeBuf = (byte[]) msg.obj;
 				// construct a string from the buffer
 				String writeMessage = new String(writeBuf);
 				onWriteSuccess(writeMessage);
 				break;
+				
 			case AndroidinoConstants.MESSAGE_READ:
-				byte[] readBuf = (byte[]) msg.obj;
 				// construct a string from the valid bytes in the buffer
-				String readMessage = new String(readBuf, 0, msg.arg1);
+				String readMessage = (String) msg.obj;
 				onNewMessage(readMessage);	
 				break;
+				
 			case AndroidinoConstants.MESSAGE_DEVICE_NAME:
 				// save the connected device's name
 				mConnectedDeviceName = msg.getData().getString(AndroidinoConstants.DEVICE_NAME);
 				Toast.makeText(getApplicationContext(), getString(R.string.connected_to) + 
 						mConnectedDeviceName, Toast.LENGTH_SHORT).show();
 				break;
+				
 			case AndroidinoConstants.MESSAGE_TOAST:
 				Toast.makeText(getApplicationContext(), 
 						msg.getData().getString(AndroidinoConstants.TOAST), Toast.LENGTH_SHORT).show();

@@ -360,12 +360,14 @@ public class BluetoothConnection {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+        private final StringBuffer readMessage;
 
         public ConnectedThread(BluetoothSocket socket) {
             Log.d(LOG_TAG, "create ConnectedThread");
             mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
+            readMessage = new StringBuffer();
 
             // Get the BluetoothSocket input and output streams
             try {
@@ -383,16 +385,44 @@ public class BluetoothConnection {
             Log.i(LOG_TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[1024];
             int bytes;
+            int startIndex = -1;
+            int endIndex = -1;
+            String message;
 
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
+                    
+                    readMessage.append(new String(buffer, 0, bytes));
+                    
+                    // Check if the string stored is a complete instruction, that starts with "_" and ends with "%"
+                    // If the instruction is full send it to the handler and delete it from the StringBuilder
+                    
+                    startIndex = readMessage.indexOf(AndroidinoConstants.START_READ_DELIMITER);
+                    endIndex = readMessage.indexOf(AndroidinoConstants.END_READ_DELIMITER);
+                    
+//                    Log.e(LOG_TAG, "startindex: " + startIndex);
+//                    Log.e(LOG_TAG, "endIndex: " + startIndex);
+//                    Log.e(LOG_TAG, "readMessage: " + readMessage);
+                    
+                    if((startIndex != -1) && (endIndex != -1) && (startIndex < endIndex)) {
+                    	
+                    	message = readMessage.substring(startIndex+1, endIndex);
+                    	
+                        // Send the obtained message to the UI Activity
+                        mHandler.obtainMessage(AndroidinoConstants.MESSAGE_READ, bytes, -1, message)
+                                .sendToTarget();
+                        
+                        // Delete from the first character to delete possible broken messages and not add with the next message
+                        readMessage.delete(0, endIndex+1);
+                    }
+                    
+                    startIndex = -1;
+                    endIndex = -1;  
 
-                    // Send the obtained bytes to the UI Activity
-                    mHandler.obtainMessage(AndroidinoConstants.MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget();
+
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "disconnected", e);
                     connectionLost();

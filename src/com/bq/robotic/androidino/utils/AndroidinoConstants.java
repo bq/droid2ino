@@ -37,6 +37,10 @@ public class AndroidinoConstants {
     public static final int STATE_CONNECTING = 2; // now initiating an outgoing connection
     public static final int STATE_CONNECTED = 3;  // now connected to a remote device
     
+    // Read delimiters
+    public static final String START_READ_DELIMITER = "_";
+    public static final String END_READ_DELIMITER = "%";
+    
     // Debug
     public static final boolean D = true;
 	

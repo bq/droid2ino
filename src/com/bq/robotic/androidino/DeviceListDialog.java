@@ -15,6 +15,7 @@
  */
 package com.bq.robotic.androidino;
 
+import java.lang.reflect.Array;
 import java.util.Set;
 
 import com.bq.robotic.androidino.utils.AndroidinoConstants;
@@ -112,6 +113,9 @@ public class DeviceListDialog extends Dialog {
         if (pairedDevices.size() > 0) {
             findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
+            	
+//            	ArrayList storedNames 
+            	
                 mPairedDevicesArrayAdapter.add(device.getName() + AndroidinoConstants.NEW_LINE_CHARACTER + 
                 		device.getAddress());
             }
@@ -165,6 +169,8 @@ public class DeviceListDialog extends Dialog {
             // Get the device MAC address, which is the last 17 chars in the View
             String info = ((TextView) v).getText().toString();
             String address = info.substring(info.length() - 17);
+            
+            // TODO: Get the device name (the string till the NEW_LINE_CHARACTER) in order to store it
 
             // Create the result Intent and include the MAC address
             Intent intent = new Intent();
