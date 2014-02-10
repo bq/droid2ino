@@ -15,10 +15,7 @@
  */
 package com.bq.robotic.androidino;
 
-import java.lang.reflect.Array;
 import java.util.Set;
-
-import com.bq.robotic.androidino.utils.AndroidinoConstants;
 
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
@@ -35,8 +32,11 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.bq.robotic.androidino.utils.AndroidinoConstants;
 
 /**
  * This dialog lists any paired devices and devices detected in the area 
@@ -66,10 +66,8 @@ public class DeviceListDialog extends Dialog {
 
         // Setup the window
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.device_list);
-
-        // set default title
-        setTitle(R.string.select_device);
 
         // Initialize the button to perform device discovery
         Button scanButton = (Button) findViewById(R.id.button_scan);
@@ -114,8 +112,6 @@ public class DeviceListDialog extends Dialog {
             findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
             	
-//            	ArrayList storedNames 
-            	
                 mPairedDevicesArrayAdapter.add(device.getName() + AndroidinoConstants.NEW_LINE_CHARACTER + 
                 		device.getAddress());
             }
@@ -146,7 +142,8 @@ public class DeviceListDialog extends Dialog {
 
         // Indicate scanning in the title
 //        setProgressBarIndeterminateVisibility(true);
-        setTitle(R.string.scanning);
+        TextView dialogTitle = (TextView) findViewById(R.id.dialog_title);
+        dialogTitle.setText(R.string.scanning);
 
         // Turn on sub-title for new devices
         findViewById(R.id.title_new_devices).setVisibility(View.VISIBLE);
@@ -195,6 +192,13 @@ public class DeviceListDialog extends Dialog {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // Get the BluetoothDevice object from the Intent
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                
+                // Change the weight of the list of paired devices in order to show the new devices 
+                ListView pairedListView = (ListView) findViewById(R.id.paired_devices);
+                LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
+                p.weight = 1;
+                pairedListView.setLayoutParams(p);
+                
                 // If it's already paired, skip it, because it's been listed already
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     mNewDevicesArrayAdapter.add(device.getName() + AndroidinoConstants.NEW_LINE_CHARACTER + device.getAddress());
@@ -202,7 +206,8 @@ public class DeviceListDialog extends Dialog {
             // When discovery is finished, change the Activity title
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
 //                setProgressBarIndeterminateVisibility(false);
-                setTitle(R.string.select_device);
+                TextView dialogTitle = (TextView) findViewById(R.id.dialog_title);
+                dialogTitle.setText(R.string.select_device);
                 if (mNewDevicesArrayAdapter.getCount() == 0) {
                     String noDevices = getContext().getResources().getText(R.string.none_found).toString();
                     mNewDevicesArrayAdapter.add(noDevices);

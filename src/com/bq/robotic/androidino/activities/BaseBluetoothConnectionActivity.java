@@ -29,7 +29,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	// Name of the connected device
 	protected String mConnectedDeviceName = null;
 	// String buffer for outgoing messages
-	protected StringBuffer mOutStringBuffer;
+//	protected StringBuffer mOutStringBuffer;
 	// Local Bluetooth adapter
 	protected BluetoothAdapter mBluetoothAdapter = null;
 	// Member object for the BT connect services
@@ -80,15 +80,23 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		// not enabled during onStart(), so we were paused to enable it...
 		// onResume() will be called when ACTION_REQUEST_ENABLE activity
 		// returns.
-		if (mBluetoothConnection != null) {
-			// Only if the state is STATE_NONE, do we know that we haven't
-			// started already
-			if (mBluetoothConnection.getState() == AndroidinoConstants.STATE_NONE) {
-				// Start the Bluetooth services
-				mBluetoothConnection.start();
-			}
-		}
+//		if (mBluetoothConnection != null) {
+//			// Only if the state is STATE_NONE, do we know that we haven't
+//			// started already
+//			if (mBluetoothConnection.getState() == AndroidinoConstants.STATE_NONE) {
+//				// Start the Bluetooth services
+//				mBluetoothConnection.start();
+//			}
+//		}
 	}
+	
+	
+//	@Override
+//	public synchronized void onPause() {
+//	    super.onPause();
+//	    if (mBluetoothConnection != null) mBluetoothConnection.stop();
+//	    if(AndroidinoConstants.D) Log.e(LOG_TAG, "- ON PAUSE -");
+//	}
 	
 	
 	@Override
@@ -124,7 +132,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		mBluetoothConnection = new BluetoothConnection(this, mHandler);
 
 		// Initialize the buffer for outgoing messages
-		mOutStringBuffer = new StringBuffer("");
+//		mOutStringBuffer = new StringBuffer("");
 
 	}
 	
@@ -147,8 +155,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 */
 	protected void sendMessage(String message) {
 		// Check that we're actually connected before trying anything
-		if (mBluetoothConnection.getState() != AndroidinoConstants.STATE_CONNECTED) {
-			Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+		if (!isConnected()) {
 			return;
 		}
 
@@ -159,9 +166,24 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 			mBluetoothConnection.write(send);
 
 			// Reset out string buffer to zero and clear the edit text field
-			mOutStringBuffer.setLength(0);
+//			mOutStringBuffer.setLength(0);
 		}
-	}	
+	}
+	
+	
+	/**
+	 * Checks if the mobile device is connected to another device
+	 * @return
+	 */
+	protected boolean isConnected() {
+		if (mBluetoothConnection.getState() != AndroidinoConstants.STATE_CONNECTED) {
+			Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
 
 	/**
 	 * Helper to launch {@link DeviceListDialog}

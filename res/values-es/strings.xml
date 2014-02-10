@@ -11,7 +11,7 @@
 
     <!-- DeviceListActivity -->
     <string name="scanning">Buscando dispositivos&#8230;</string>
-    <string name="select_device">Selecciona un dispositivo para conectar</string>
+    <string name="select_device">Selecciona un dispositivo</string>
     <string name="none_paired">No hay dispositivos emparejados</string>
     <string name="none_found">No se han encontrado dispositivos</string>
     <string name="title_paired_devices">Dispositivos Emparejados</string>
@@ -19,7 +19,7 @@
     <string name="button_scan">Buscar dispositivos</string>
 
     <!-- Options Menu -->
-    <string name="connect">Conectar a un dispositivo</string>
+    <string name="connect">Conectar</string>
     <string name="discoverable">Hacer el dispositivo visible</string>
     
     <!-- BaseBluetoohConnection -->

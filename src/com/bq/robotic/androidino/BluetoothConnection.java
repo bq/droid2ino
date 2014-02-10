@@ -250,7 +250,11 @@ public class BluetoothConnection {
                 } catch (IOException e) {
                     Log.e(LOG_TAG, "Socket accept() failed", e);
                     break;
-                }
+                    
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, "Some type error", e);
+                    break;
+                } 
 
                 // If a connection was accepted
                 if (socket != null) {
