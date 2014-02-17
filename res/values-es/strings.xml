@@ -20,6 +20,7 @@
 
     <!-- Options Menu -->
     <string name="connect">Conectar</string>
+    <string name="disconnect">Desconectar</string>
     <string name="discoverable">Hacer el dispositivo visible</string>
     
     <!-- BaseBluetoohConnection -->

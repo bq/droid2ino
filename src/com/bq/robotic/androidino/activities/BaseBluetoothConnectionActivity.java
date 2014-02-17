@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.bq.robotic.androidino.BluetoothConnection;
 import com.bq.robotic.androidino.DeviceListDialog;
+import com.bq.robotic.androidino.DeviceListDialogStyle;
 import com.bq.robotic.androidino.DialogListener;
 import com.bq.robotic.androidino.R;
 import com.bq.robotic.androidino.utils.AndroidinoConstants;
@@ -102,7 +103,6 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		
 		stopApp();
 	}
 	
@@ -113,13 +113,22 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * This is protected in case that a child wants to close when the user press a button or other view
 	 */
 	protected void stopApp() {
-		// Stop the Bluetooth connect services
-		if (mBluetoothConnection != null) mBluetoothConnection.stop();
+		
+		stopBluetoothConnection();
 		
 		// Disable the Bluetooth if it was disable before executing this app
 		if (mBluetoothAdapter.isEnabled() && !wasBluetoothEnabled) {
 			mBluetoothAdapter.disable();
 		}
+	}
+	
+	
+	/**
+	 * this method provides to the child classes a way to stop te bluetooth connection
+	 */
+	protected void stopBluetoothConnection() {
+		// Stop the Bluetooth connect services
+		if (mBluetoothConnection != null) mBluetoothConnection.stop();
 	}
 	
 	
@@ -189,20 +198,25 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * Helper to launch {@link DeviceListDialog}
 	 * @param listener
 	 */
-	private void deviceListDialog(DialogListener listener) {
-		new DeviceListDialog(this, listener).show();
+	private DeviceListDialog deviceListDialog(DialogListener listener) {
+		DeviceListDialog deviceDialog = new DeviceListDialog(this, listener);
+		deviceDialog.show();
+		
+		return deviceDialog;
 	}
 
 	/**
 	 * Launch the {@link DeviceListDialog} to see devices and do scan
 	 */
-	protected void requestDeviceConnection() {
-		deviceListDialog(new DialogListener() {
+	protected DeviceListDialogStyle requestDeviceConnection() {
+		DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
 			public void onComplete(Bundle values) {
 				connectDevice(values);
 			}
 			public void onCancel() {}
 		});
+		
+		return deviceDialog.getDialogStyle();
 	}
 
 	private void connectDevice(Bundle values) {

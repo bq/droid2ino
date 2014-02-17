@@ -53,6 +53,8 @@ public class DeviceListDialog extends Dialog {
     private ArrayAdapter<String> mPairedDevicesArrayAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     
+    private DeviceListDialogStyle mDialogStyle;
+    
     private DialogListener mListener;
     
     public DeviceListDialog(Context context, DialogListener listener) {
@@ -78,6 +80,11 @@ public class DeviceListDialog extends Dialog {
             }
         });
 
+        
+        // Initialize the object for the styling modifications of the search bluetooth device dialog
+        mDialogStyle = new DeviceListDialogStyle((TextView) findViewById(R.id.dialog_title), (TextView) findViewById(R.id.title_paired_devices), (TextView) findViewById(R.id.title_new_devices));
+        
+        
         // Initialize array adapters. One for already paired devices and
         // one for newly discovered devices
         mPairedDevicesArrayAdapter = new ArrayAdapter<String>(getContext(), R.layout.device_name);
@@ -120,6 +127,7 @@ public class DeviceListDialog extends Dialog {
             mPairedDevicesArrayAdapter.add(noDevices);
         }
     }
+    
 
 	@Override
     protected void onStop() {
@@ -215,5 +223,41 @@ public class DeviceListDialog extends Dialog {
             }
         }
     };
+    
+    
+	public DeviceListDialogStyle getDialogStyle() {
+		return mDialogStyle;
+	}
+       
+
+//    /**
+//     * Get the TextView of the title of the dialog for searching the bluetooth devices
+//     * @return 
+//     */
+//    public TextView getSearchDevicesTitleView() {
+//    	TextView searchDeviceTitle = (TextView) findViewById(R.id.dialog_title);
+//    	return searchDeviceTitle;
+//    }
+//
+//    
+//    /**
+//     * Get the TextView of the title of the dialog for the paired bluetooth devices
+//     * @return 
+//     */
+//    public TextView getDevicesPairedTitleView() {
+//    	TextView devicesPairedTitle = (TextView) findViewById(R.id.title_paired_devices);
+//    	return devicesPairedTitle;
+//    }
+//
+//    
+//    /**
+//     * Get the TextView of the title of the dialog for the new bluetooth devices
+//     * @return 
+//     */
+//    public TextView getNewDevicesTitleView() {
+//    	TextView newDevicesTitle = (TextView) findViewById(R.id.title_new_devices);
+//    	return newDevicesTitle;
+//    }
+
 
 }

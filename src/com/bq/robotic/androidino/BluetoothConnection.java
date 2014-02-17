@@ -283,7 +283,9 @@ public class BluetoothConnection {
 
         public void cancel() {
             try {
-                mmServerSocket.close();
+            	if(mmServerSocket != null) {
+            		mmServerSocket.close();
+            	}
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Socket close() of server failed", e);
             }
