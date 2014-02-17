@@ -193,6 +193,19 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		}
 	}
 	
+	
+	/**
+	 * Checks if the mobile device is connected to another device
+	 * @return
+	 */
+	protected boolean isConnectedWithoutToast() {
+		if (mBluetoothConnection.getState() != AndroidinoConstants.STATE_CONNECTED) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
 
 	/**
 	 * Helper to launch {@link DeviceListDialog}
