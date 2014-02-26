@@ -438,7 +438,7 @@ public class BluetoothConnection {
                     
                     if((startIndex != -1) && (endIndex != -1) && (startIndex < endIndex)) {
                     	
-                    	message = readMessage.substring(startIndex+1, endIndex);
+                    	message = readMessage.substring(startIndex+2, endIndex);
                     	
                         // Send the obtained message to the UI Activity
                         mHandler.obtainMessage(AndroidinoConstants.MESSAGE_READ, bytes, -1, message)

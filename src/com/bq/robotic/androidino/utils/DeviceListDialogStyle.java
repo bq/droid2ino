@@ -40,7 +40,7 @@ public class DeviceListDialogStyle {
 			TextView newDevicesTitleView) {
 		this.searchDevicesTitleView = searchDevicesTitleView;
 		this.devicesPairedTitleView = devicesPairedTitleView;
-		this.newDevicesTitleView = devicesPairedTitleView;
+		this.newDevicesTitleView = newDevicesTitleView;
 	}
 
 	
