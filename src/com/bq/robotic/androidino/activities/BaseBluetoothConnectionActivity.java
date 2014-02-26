@@ -1,3 +1,26 @@
+/*
+* This file is part of the Androidino
+*
+* Copyright (C) 2013 Mundo Reader S.L.
+* 
+* Date: February 2014
+* Author: Estefanía Sarasola Elvira <estefania.sarasola@bq.com>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package com.bq.robotic.androidino.activities;
 
 import android.app.Activity;
@@ -13,10 +36,10 @@ import android.widget.Toast;
 
 import com.bq.robotic.androidino.BluetoothConnection;
 import com.bq.robotic.androidino.DeviceListDialog;
-import com.bq.robotic.androidino.DeviceListDialogStyle;
 import com.bq.robotic.androidino.DialogListener;
 import com.bq.robotic.androidino.R;
 import com.bq.robotic.androidino.utils.AndroidinoConstants;
+import com.bq.robotic.androidino.utils.DeviceListDialogStyle;
 
 public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity {
 
@@ -72,32 +95,6 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 				setupSession();
 		}
 	}
-
-	@Override
-	public synchronized void onResume() {
-		super.onResume();
-
-		// Performing this check in onResume() covers the case in which BT was
-		// not enabled during onStart(), so we were paused to enable it...
-		// onResume() will be called when ACTION_REQUEST_ENABLE activity
-		// returns.
-//		if (mBluetoothConnection != null) {
-//			// Only if the state is STATE_NONE, do we know that we haven't
-//			// started already
-//			if (mBluetoothConnection.getState() == AndroidinoConstants.STATE_NONE) {
-//				// Start the Bluetooth services
-//				mBluetoothConnection.start();
-//			}
-//		}
-	}
-	
-	
-//	@Override
-//	public synchronized void onPause() {
-//	    super.onPause();
-//	    if (mBluetoothConnection != null) mBluetoothConnection.stop();
-//	    if(AndroidinoConstants.D) Log.e(LOG_TAG, "- ON PAUSE -");
-//	}
 	
 	
 	@Override

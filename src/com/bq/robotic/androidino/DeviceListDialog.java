@@ -1,18 +1,26 @@
 /*
- * Copyright (C) 2009 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* This file is part of the Androidino
+*
+* Copyright (C) 2013 Mundo Reader S.L.
+* 
+* Date: February 2014
+* Author: Estefanía Sarasola Elvira <estefania.sarasola@bq.com>
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+*/
+
 package com.bq.robotic.androidino;
 
 import java.util.Set;
@@ -37,6 +45,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bq.robotic.androidino.utils.AndroidinoConstants;
+import com.bq.robotic.androidino.utils.DeviceListDialogStyle;
 
 /**
  * This dialog lists any paired devices and devices detected in the area 
@@ -44,6 +53,7 @@ import com.bq.robotic.androidino.utils.AndroidinoConstants;
  * of the device is sent back to the parent Activity in the result Intent.
  * 
  */
+
 public class DeviceListDialog extends Dialog {
     // Debugging
     private static final String LOG_TAG = "DeviceListActivity";
@@ -82,7 +92,9 @@ public class DeviceListDialog extends Dialog {
 
         
         // Initialize the object for the styling modifications of the search bluetooth device dialog
-        mDialogStyle = new DeviceListDialogStyle((TextView) findViewById(R.id.dialog_title), (TextView) findViewById(R.id.title_paired_devices), (TextView) findViewById(R.id.title_new_devices));
+        mDialogStyle = new DeviceListDialogStyle((TextView) findViewById(R.id.dialog_title), 
+        		(TextView) findViewById(R.id.title_paired_devices), 
+        		(TextView) findViewById(R.id.title_new_devices));
         
         
         // Initialize array adapters. One for already paired devices and
@@ -174,8 +186,6 @@ public class DeviceListDialog extends Dialog {
             // Get the device MAC address, which is the last 17 chars in the View
             String info = ((TextView) v).getText().toString();
             String address = info.substring(info.length() - 17);
-            
-            // TODO: Get the device name (the string till the NEW_LINE_CHARACTER) in order to store it
 
             // Create the result Intent and include the MAC address
             Intent intent = new Intent();
@@ -209,7 +219,8 @@ public class DeviceListDialog extends Dialog {
                 
                 // If it's already paired, skip it, because it's been listed already
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    mNewDevicesArrayAdapter.add(device.getName() + AndroidinoConstants.NEW_LINE_CHARACTER + device.getAddress());
+                    mNewDevicesArrayAdapter.add(device.getName() + 
+                    		AndroidinoConstants.NEW_LINE_CHARACTER + device.getAddress());
                 }
             // When discovery is finished, change the Activity title
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
@@ -217,7 +228,8 @@ public class DeviceListDialog extends Dialog {
                 TextView dialogTitle = (TextView) findViewById(R.id.dialog_title);
                 dialogTitle.setText(R.string.select_device);
                 if (mNewDevicesArrayAdapter.getCount() == 0) {
-                    String noDevices = getContext().getResources().getText(R.string.none_found).toString();
+                    String noDevices = getContext().getResources().
+                    		getText(R.string.none_found).toString();
                     mNewDevicesArrayAdapter.add(noDevices);
                 }
             }
@@ -227,37 +239,6 @@ public class DeviceListDialog extends Dialog {
     
 	public DeviceListDialogStyle getDialogStyle() {
 		return mDialogStyle;
-	}
-       
-
-//    /**
-//     * Get the TextView of the title of the dialog for searching the bluetooth devices
-//     * @return 
-//     */
-//    public TextView getSearchDevicesTitleView() {
-//    	TextView searchDeviceTitle = (TextView) findViewById(R.id.dialog_title);
-//    	return searchDeviceTitle;
-//    }
-//
-//    
-//    /**
-//     * Get the TextView of the title of the dialog for the paired bluetooth devices
-//     * @return 
-//     */
-//    public TextView getDevicesPairedTitleView() {
-//    	TextView devicesPairedTitle = (TextView) findViewById(R.id.title_paired_devices);
-//    	return devicesPairedTitle;
-//    }
-//
-//    
-//    /**
-//     * Get the TextView of the title of the dialog for the new bluetooth devices
-//     * @return 
-//     */
-//    public TextView getNewDevicesTitleView() {
-//    	TextView newDevicesTitle = (TextView) findViewById(R.id.title_new_devices);
-//    	return newDevicesTitle;
-//    }
-
+	}      
 
 }
