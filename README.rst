@@ -42,10 +42,10 @@ Features
 
 * Fixed the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings that appeared in both libraries in which is based this one. It uses escape characters in order to obtaining the entire message well: 
 
-	* Start escape characters: ``&&`` 
-	* End escape characters : ``%%``
+  * Start escape characters: ``&&`` 
+  * End escape characters : ``%%``
 
-	| So an example of a message written by the Arduino program would be::
+  | So an example of a message written by the Arduino program would be::
 
 	&&I write from Arduino%%
 
@@ -73,17 +73,15 @@ Installation
 
 	git clone https://github.com/bq/androidino.git
 
-#. 
+#. UNDER CONSTRUCTION
 
-
-#.
-
+#. UNDER CONSTRUCTION
 
 #. Set the Androidino library to your app project:  
 	
- - In Eclipse, select your project in the Package Explorer > File > Properties > Android 
+   - In Eclipse, select your project in the Package Explorer > File > Properties > Android 
 
- - Press the ``Add`` button and select the Androidino library.
+   - Press the ``Add`` button and select the Androidino library.
 
 #. Add the Bluetooth permissions to the AndroidManifest.xml of your project::
  
