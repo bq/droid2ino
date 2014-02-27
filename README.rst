@@ -30,10 +30,10 @@ Features
 * Search and pair new devices
 * Translated to English and Spanish and easy to translate to other languages through adding XML files
 * Fixed the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings that appeared in both libraries in which is based this one. It uses escape characters in order to obtaining the entire message well. 
-	Start escape characters: ``&&`` 
-	End escape characters : ``%%``
-	So an example of a message written by the Arduino program would be::
-		&&I write from Arduino%%
+- Start escape characters: ``&&`` 
+- End escape characters : ``%%``
+So an example of a message written by the Arduino program would be::
+	&&I write from Arduino%%
 * Arduino boards needs a specific UUID, so don't change it!
 * If the Bluetooth was disabled before using the app, then when exiting it will be disabled again. If it was enabled, it will remain enabled.
 * When exiting the program, the Bluetooth connection, if there is one, will be closed. furthermore, the library gives the possibility of closing the current Bluetooth connection in any moment without exiting the app (for example for a disconnect button)
@@ -62,11 +62,11 @@ The app that will use this library must add the following permission, if not it 
 Limitations
 ===========
 
-In order to fix the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings that appeared in both libraries in which is based this one, this library uses escape characters in order to obtaining the entire message well.: 
-		Start escape characters: && 
-		End escape characters : %%
-	So an example of a message written by the Arduino program would be:
-		&&I write from Arduino%%
+In order to fix the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings that appeared in both libraries in which is based this one, this library uses escape characters in order to obtaining the entire message well. 
+	- Start escape characters: ``&&`` 
+	- End escape characters : ``%%``
+So an example of a message written by the Arduino program would be::
+	&&I write from Arduino%%
 
 
 License
