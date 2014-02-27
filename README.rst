@@ -42,10 +42,10 @@ Features
 
 * Fixed the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings that appeared in both libraries in which is based this one. It uses escape characters in order to obtaining the entire message well. 
 
-	- Start escape characters: ``&&`` 
-	- End escape characters : ``%%``
+- Start escape characters: ``&&`` 
+- End escape characters : ``%%``
 
-	So an example of a message written by the Arduino program would be::
+So an example of a message written by the Arduino program would be::
 
 	&&I write from Arduino%%
 
@@ -84,9 +84,9 @@ Limitations
 
 In order to fix the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings that appeared in both libraries in which is based this one, this library uses escape characters in order to obtaining the entire message well.
  
-	- Start escape characters: ``&&`` 
+- Start escape characters: ``&&`` 
 
-	- End escape characters : ``%%``
+- End escape characters : ``%%``
 
 So an example of a message written by the Arduino program would be::
 
