@@ -45,7 +45,7 @@ Features
   * Start escape characters: ``&&`` 
   * End escape characters : ``%%``
 
-  | So an example of a message written by the Arduino program would be::
+  So an example of a message written by the Arduino program would be::
 
 	&&I write from Arduino%%
 
