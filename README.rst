@@ -75,7 +75,15 @@ Installation
 
 #. You will need the Support Library v7. You can install it following the instructions in `adding libraries with resources  <http://developer.android.com/tools/support-library/setup.html#libs-with-res>`_.
 
-#. Import the droid2ino library in ``File`` > ``Import`` > ``Existing Projects into Workspace`` and browse to the droid2ino project that you cloned before. Wait until everything has been imported by Eclipse and the workspace has been built. The droid2ino project is already configured to be used as a library and defined that it uses the support library v7.
+#. Import the droid2ino library in ``File`` > ``Import`` > ``Existing Projects into Workspace`` and browse to the droid2ino project that you cloned before. Wait until everything has been imported by Eclipse and the workspace has been built. The droid2ino project is already configured to be used as a library and defined that it uses the support library v7. 
+   
+   Both library projects (droid2ino and android support library v7) must be always open  in your Eclipse program because both are libraries with resources files, so they cannot be a simple .jar file as others. 
+ 
+   Maybe, you will need to update the reference to the Support Library v7 this way:  
+
+   - In Eclipse, select droid2ino project in the ``Package Explorer`` > ``File`` > ``Properties`` > ``Android`` 
+
+   - Press the ``Add`` button and select the android support library v7.
 
 #. Set the droid2ino library to your app project:  
 	
