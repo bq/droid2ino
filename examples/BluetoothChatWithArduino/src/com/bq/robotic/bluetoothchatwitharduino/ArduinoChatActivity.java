@@ -39,9 +39,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bq.robotic.androidino.activities.BaseBluetoothConnectionActivity;
-import com.bq.robotic.androidino.utils.AndroidinoConstants;
-import com.bq.robotic.androidino.utils.DeviceListDialogStyle;
+import com.bq.robotic.droid2ino.activities.BaseBluetoothConnectionActivity;
+import com.bq.robotic.droid2ino.utils.AndroidinoConstants;
+import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
 
 public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 
@@ -113,19 +113,25 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.connect_scan:
-
-			DeviceListDialogStyle deviceListDialogStyle = requestDeviceConnection();
-
-			// Style the search bluetooth devices dialog			
-			deviceListDialogStyle.getSearchDevicesTitleView().setTextColor(Color.parseColor("#EDCEFF"));
-			deviceListDialogStyle.getSearchDevicesTitleView().setBackgroundColor(Color.parseColor("#5F5266"));
-			deviceListDialogStyle.getDevicesPairedTitleView().setBackgroundColor(Color.parseColor("#930CFF"));
-			deviceListDialogStyle.getNewDevicesTitleView().setBackgroundColor(Color.parseColor("#930CFF"));
-			
-
-			return true;
-		}
+			case R.id.connect_scan:
+	
+				DeviceListDialogStyle deviceListDialogStyle = requestDeviceConnection();
+	
+				// Style the search bluetooth devices dialog			
+				deviceListDialogStyle.getSearchDevicesTitleView().setTextColor(Color.parseColor("#EDCEFF"));
+				deviceListDialogStyle.getSearchDevicesTitleView().setBackgroundColor(Color.parseColor("#5F5266"));
+				deviceListDialogStyle.getDevicesPairedTitleView().setBackgroundColor(Color.parseColor("#930CFF"));
+				deviceListDialogStyle.getNewDevicesTitleView().setBackgroundColor(Color.parseColor("#930CFF"));			
+	
+				return true;
+		
+			case R.id.disconnect:
+		
+				stopBluetoothConnection();		
+		
+				return true;
+			}
+	
 		return false;
 	}
 
@@ -183,9 +189,10 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 				// Reset out string buffer to zero and clear the edit text field
 				mOutStringBuffer.setLength(0);
 				mOutEditText.setText(mOutStringBuffer);
+				return true;
 			}
 			if(D) Log.i(LOG_TAG, "END onEditorAction");
-			return true;
+			return false;
 		}
 	};
 
