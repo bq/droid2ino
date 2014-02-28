@@ -21,7 +21,7 @@
 *
 */
 
-package com.bq.robotic.androidino.activities;
+package com.bq.robotic.droid2ino.activities;
 
 public abstract class BaseBluetoothSendOnlyActivity extends BaseBluetoothConnectionActivity {
 	

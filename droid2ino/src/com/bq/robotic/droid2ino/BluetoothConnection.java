@@ -21,7 +21,7 @@
 *
 */
 
-package com.bq.robotic.androidino;
+package com.bq.robotic.droid2ino;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +37,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.bq.robotic.androidino.utils.AndroidinoConstants;
+import com.bq.robotic.droid2ino.utils.AndroidinoConstants;
 
 
 /**

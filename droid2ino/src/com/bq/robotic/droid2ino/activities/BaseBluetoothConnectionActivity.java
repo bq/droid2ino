@@ -21,7 +21,7 @@
 *
 */
 
-package com.bq.robotic.androidino.activities;
+package com.bq.robotic.droid2ino.activities;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -34,12 +34,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.bq.robotic.androidino.BluetoothConnection;
-import com.bq.robotic.androidino.DeviceListDialog;
-import com.bq.robotic.androidino.DialogListener;
-import com.bq.robotic.androidino.R;
-import com.bq.robotic.androidino.utils.AndroidinoConstants;
-import com.bq.robotic.androidino.utils.DeviceListDialogStyle;
+import com.bq.robotic.droid2ino.BluetoothConnection;
+import com.bq.robotic.droid2ino.DeviceListDialog;
+import com.bq.robotic.droid2ino.DialogListener;
+import com.bq.robotic.droid2ino.R;
+import com.bq.robotic.droid2ino.utils.AndroidinoConstants;
+import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
 
 public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity {
 

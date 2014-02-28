@@ -21,7 +21,7 @@
 *
 */
 
-package com.bq.robotic.androidino;
+package com.bq.robotic.droid2ino;
 
 import android.os.Bundle;
 

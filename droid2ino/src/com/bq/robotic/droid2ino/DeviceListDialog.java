@@ -21,7 +21,7 @@
 *
 */
 
-package com.bq.robotic.androidino;
+package com.bq.robotic.droid2ino;
 
 import java.util.Set;
 
@@ -44,8 +44,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bq.robotic.androidino.utils.AndroidinoConstants;
-import com.bq.robotic.androidino.utils.DeviceListDialogStyle;
+import com.bq.robotic.droid2ino.utils.AndroidinoConstants;
+import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
 
 /**
  * This dialog lists any paired devices and devices detected in the area 

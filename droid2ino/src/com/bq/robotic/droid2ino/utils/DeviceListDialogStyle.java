@@ -22,7 +22,7 @@
 */
 
 
-package com.bq.robotic.androidino.utils;
+package com.bq.robotic.droid2ino.utils;
 
 import android.widget.TextView;
 
