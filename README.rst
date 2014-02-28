@@ -8,7 +8,7 @@ https://github.com/khanmurtuza/bluetooth-lib
 Androidino
 ==========
 
-Androidino is a library project to communicating with Arduino hardware using a Bluetoot connection
+Androidino is a library project to communicating with Arduino hardware using a Bluetooth connection
 
 It allows you to:
 
@@ -20,7 +20,7 @@ It allows you to:
 
 * Obtain information about the Bluetooth connection status
 
-* Give a different style to part of the dialog that appears when you request the BluetoothConnection with the paired and new devices.
+* Give a different style to part of the dialog that appears when you request the BluetoothConnection with the paired devices and new ones.
 
 * Use the Android support libraries v.7 in order to be able of using fragments, the action bar, the holo style, etc.
 
@@ -34,7 +34,7 @@ Features
 
 * Use of `Android v7 Support Library  <http://developer.android.com/tools/support-library/features.html#v7>`_
 
-* Possibility of give a different style to the dialog shown when searching for the paired and new Bluetooth devices in order to get better integration with your app
+* Possibility of give a different style to the dialog shown when searching for the paired Bluetooth devices and new ones in order to get better integration with your app
 
 * Search and pair new devices
 
@@ -49,9 +49,9 @@ Features
 
 	&&I write from Arduino%%
 
-* Arduino boards needs a specific UUID, so don't change it!
+* Arduino boards need a specific UUID, so don't change it!
 
-* If the Bluetooth was disabled before using the app, then when exiting it will be disabled again. If it was enabled, it will remain enabled.
+* If the Bluetooth was disabled before using the app, then when exiting the app it will be disabled again. If it was enabled, it will remain enabled.
 
 * When exiting the program, the Bluetooth connection, if there is one, will be closed. furthermore, the library gives the possibility of closing the current Bluetooth connection in any moment without exiting the app (for example for a disconnect button)
 
@@ -61,7 +61,7 @@ Features
 Installation
 ============
 
-#. Install the ADT Bundle (Android SDK + Eclipse with ADT plugin installed among others.
+#. Install the ADT Bundle (Android SDK + Eclipse with ADT plugin, among others).
 
 #. If you use a 64 bits Linux, you will need to install ia32-libs-multiarch::
 
@@ -73,13 +73,13 @@ Installation
 
 	git clone https://github.com/bq/androidino.git
 
-#. UNDER CONSTRUCTION
+#. You will need the Support Library v7. You can install it following the instructions in `adding libraries with resources  <http://developer.android.com/tools/support-library/setup.html#libs-with-res>`_.
 
-#. UNDER CONSTRUCTION
+#. Import the Androidino library in ``File`` > ``Import`` > ``Existing Projects into Workspace`` and browse to the Androidino project that you cloned before. Wait until everything has been imported by Eclipse and the workspace has been built. The Androidino project is already configured to be used as a library and defined that it uses the support library v7.
 
 #. Set the Androidino library to your app project:  
 	
-   - In Eclipse, select your project in the Package Explorer > File > Properties > Android 
+   - In Eclipse, select your project in the ``Package Explorer`` > ``File`` > ``Properties`` > ``Android`` 
 
    - Press the ``Add`` button and select the Androidino library.
 
@@ -101,7 +101,7 @@ Requirements
 
 * Arduino board with bluetooth
 
-The app that will use this library must add the following permission, if not it will throw an Exception and close::
+The app that will use this library must add the following permission, if not it will throw an Exception and will close::
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -110,7 +110,7 @@ The app that will use this library must add the following permission, if not it 
 Limitations
 ===========
 
-In order to fix the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings that appeared in both libraries in which is based this one, this library uses escape characters in order to obtaining the entire message well.
+In order to fix the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings, this library uses escape characters in order to obtaining the entire message well.
  
 - Start escape characters: ``&&`` 
 
