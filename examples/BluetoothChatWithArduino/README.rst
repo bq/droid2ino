@@ -43,6 +43,8 @@ Installation
 	
    - In Eclipse, select your project in the ``Package Explorer`` > ``File`` > ``Properties`` > ``Android`` 
 
+   - Remove the previous wrong library reference.
+
    - Press the ``Add`` button and select the droid2ino library.
 
 
@@ -56,7 +58,7 @@ Requirements
 
 * Arduino IDE distribution
 
-* Arduino board with bluetooth
+* Arduino board with Bluetooth
 
 * The droid2ino library and android support library v7
 
@@ -65,7 +67,7 @@ Requirements
 Limitations
 ===========
 
-In order to fix the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings, this library uses escape characters in order to obtaining the entire message well.
+In order to fix the problem when receiving the messages from the Arduino board of obtaining empty strings or divided strings, the droid2ino library uses escape characters in order to obtaining the entire message well.
  
 - Start escape characters: ``&&`` 
 

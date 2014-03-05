@@ -107,7 +107,7 @@ Requirements
 
 * Arduino IDE distribution
 
-* Arduino board with bluetooth
+* Arduino board with Bluetooth
 
 The app that will use this library must add the following permission, if not it will throw an Exception and will close::
 
