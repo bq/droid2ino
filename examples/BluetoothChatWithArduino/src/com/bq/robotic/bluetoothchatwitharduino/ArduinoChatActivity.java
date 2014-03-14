@@ -59,6 +59,8 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 	private ArrayAdapter<String> mConversationArrayAdapter;
 	// String buffer for outgoing messages
 	private StringBuffer mOutStringBuffer;
+	
+	private Menu menu;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -101,6 +103,8 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.arduino_chat, menu);
+		this.menu = menu;
+		menu.findItem(R.id.disconnect).setEnabled(false);
 		return true;
 	}
 
@@ -145,6 +149,8 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 			case AndroidinoConstants.STATE_CONNECTED:
 				setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
 				mConversationArrayAdapter.clear();
+				menu.findItem(R.id.connect_scan).setEnabled(false);
+				menu.findItem(R.id.disconnect).setEnabled(true);
 				break;
 			case AndroidinoConstants.STATE_CONNECTING:
 				setStatus(R.string.title_connecting);
@@ -152,6 +158,8 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 			case AndroidinoConstants.STATE_LISTEN:
 			case AndroidinoConstants.STATE_NONE:
 				setStatus(R.string.title_not_connected);
+				menu.findItem(R.id.connect_scan).setEnabled(true);
+				menu.findItem(R.id.disconnect).setEnabled(false);
 				break;
 			}
 	}
