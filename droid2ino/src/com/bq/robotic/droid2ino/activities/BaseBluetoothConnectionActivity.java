@@ -196,7 +196,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * @return
 	 */
 	protected boolean isConnectedWithoutToast() {
-		if (mBluetoothConnection.getState() != AndroidinoConstants.STATE_CONNECTED) {
+		if (mBluetoothConnection == null || mBluetoothConnection.getState() != AndroidinoConstants.STATE_CONNECTED) {
 			return false;
 		} else {
 			return true;
