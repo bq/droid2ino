@@ -178,6 +178,24 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	
 	
 	/**
+	 * Sends a message.
+	 * @param message  A string of text to send.
+	 */
+	protected void sendMessage(byte [] messageBuffer) {
+		// Check that we're actually connected before trying anything
+		if (!isConnected()) {
+			return;
+		}
+
+		// Check that there's actually something to send
+		if (messageBuffer.length > 0) {
+			mBluetoothConnection.write(messageBuffer);
+
+		}
+	}
+	
+	
+	/**
 	 * Checks if the mobile device is connected to another device
 	 * @return
 	 */

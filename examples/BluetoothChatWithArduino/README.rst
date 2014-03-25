@@ -35,33 +35,43 @@ Features
 Installation
 ============
 
-#. Follow the installation instructions of the droid2ino and android support library v7 https://github.com/bq/droid2ino#installation.
+#. RoboPad depends on droid2ino library. Clone the droid2ino repository::
 
-#. Import the BluetoothChatWithArduino project in ``File`` > ``Import`` > ``Existing Projects into Workspace`` and browse to the BluetoothChatWithArduino project.
+    git clone https://github.com/bq/droid2ino.git
 
-#. Maybe, you will need to update the reference of droid2ino this way:  
-	
-   - In Eclipse, select your project in the ``Package Explorer`` > ``File`` > ``Properties`` > ``Android`` 
+#. Install the droid2ino library in your local repository::
+  
+    cd droid2ino/droid2ino
+    gradle install
 
-   - Remove the previous wrong library reference.
 
-   - Press the ``Add`` button and select the droid2ino library.
+#. Install `Android Studio <https://developer.android.com/sdk/installing/studio.html>`_ and `Gradle <http://www.gradle.org/downloads>`_.
+
+#. If you use a 64 bits Linux, you will need to install ia32-libs-multiarch::
+
+	sudo apt-get update
+	sudo apt-get upgrade
+	sudo apt-get install ia32-libs-multiarch 
+
+
+#. In Android Studio go to ``File`` > ``Open`` and select the BluetoothChatWithArduino from the example folder of the cloned repository.
+
+#. Upload the Arduino code to your robot. You can find it in the Arduino folder of this project.
 
 
 
 Requirements
 ============
 
-* Android SDK
+- `Java JDK <http://www.oracle.com/technetwork/es/java/javase/downloads/jdk7-downloads-1880260.html>`_ 
 
-* Eclipse IDE (recommended)
+- `Android Studio <https://developer.android.com/sdk/installing/studio.html>`_ 
 
-* Arduino IDE distribution
+- `Gradle <http://www.gradle.org/downloads>`_ recommended version 1.10
+  
+- `Arduino IDE <http://arduino.cc/en/Main/Software#.UzBT5HX5Pj4>`_ 
 
-* Arduino board with Bluetooth
-
-* The droid2ino library and android support library v7
-
+- Arduino board with Bluetooth
 
 
 Limitations

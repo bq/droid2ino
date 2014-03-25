@@ -58,10 +58,43 @@ Features
 * Sample project to show how to use the library
 
 
+Usage
+=====
+
+#. Clone the repository::
+
+    git clone https://github.com/bq/droid2ino.git
+
+#. Install in your local repository::
+  
+    cd droid2ino/droid2ino
+    gradle install
+
+#. Add your local repository to your root project's build.gradle file::
+
+    repositories {
+        mavenLocal()
+    }
+
+#. Add the droid2ino dependency to your app's build.gradle file. Due to a bug since gradle 1.9 we must declare the type of the dependencies and force transitiveness to true ::
+
+    dependencies {
+      compile('com.bq:droid2ino:1.3@aar') {
+          transitive = true
+      }
+    }
+
+
+#. Add the Bluetooth permissions to the AndroidManifest.xml of your project::
+ 
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
+
 Installation
 ============
 
-#. Install the ADT Bundle (Android SDK + Eclipse with ADT plugin, among others).
+#. Install `Android Studio <https://developer.android.com/sdk/installing/studio.html>`_ and `Gradle <http://www.gradle.org/downloads>`_.
 
 #. If you use a 64 bits Linux, you will need to install ia32-libs-multiarch::
 
@@ -73,46 +106,30 @@ Installation
 
 	git clone https://github.com/bq/droid2ino.git
 
-#. You will need the Support Library v7. You can install it following the instructions in `adding libraries with resources  <http://developer.android.com/tools/support-library/setup.html#libs-with-res>`_.
+#. In Android Studio go to ``File`` > ``Open`` and select the droid2ino gradle project inside the previous cloned project (that with the green robot icon, the droid2ino library folder not the repository one with the example project inside too).
 
-#. Import the droid2ino library in ``File`` > ``Import`` > ``Existing Projects into Workspace`` and browse to the droid2ino project that you cloned before. Wait until everything has been imported by Eclipse and the workspace has been built. The droid2ino project is already configured to be used as a library and defined that it uses the support library v7. 
-   
-   Both library projects (droid2ino and android support library v7) must be always open  in your Eclipse program because both are libraries with resources files, so they cannot be a simple .jar file as others. 
- 
-   Maybe, you will need to update the reference to the Support Library v7 this way:  
-
-   - In Eclipse, select droid2ino project in the ``Package Explorer`` > ``File`` > ``Properties`` > ``Android`` 
-
-   - Press the ``Add`` button and select the android support library v7.
-
-#. Set the droid2ino library to your app project:  
-	
-   - In Eclipse, select your project in the ``Package Explorer`` > ``File`` > ``Properties`` > ``Android`` 
-
-   - Press the ``Add`` button and select the droid2ino library.
-
-#. Add the Bluetooth permissions to the AndroidManifest.xml of your project::
- 
-	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-	<uses-permission android:name="android.permission.BLUETOOTH" />
-
+#. If your are going to use droid2ino for one of your projects, follow the instructions of the `Usage section <https://github.com/bq/droid2ino#usage>`_ in order to installing it in your local repository and add it the dependency needed.
 
 
 Requirements
 ============
 
-* Android SDK
+- `Java JDK <http://www.oracle.com/technetwork/es/java/javase/downloads/jdk7-downloads-1880260.html>`_ 
 
-* Eclipse IDE (recommended)
+- `Android Studio <https://developer.android.com/sdk/installing/studio.html>`_ 
 
-* Arduino IDE distribution
+- `Gradle <http://www.gradle.org/downloads>`_ recommended version 1.10
+  
+- `Arduino IDE <http://arduino.cc/en/Main/Software#.UzBT5HX5Pj4>`_ 
 
-* Arduino board with Bluetooth
+- Arduino board with Bluetooth
 
-The app that will use this library must add the following permission, if not it will throw an Exception and will close::
+- The app that will use this library must add the following permission, if not it will throw an Exception and will close::
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+
+- The app theme must have the Theme.AppCompat as parent in the style.xml file
 
 
 Limitations
