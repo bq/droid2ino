@@ -2,7 +2,7 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven { url "http://bqbot.bq.local:8081/artifactory/libs-bq-local" }
+        mavenLocal()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.9.+'
@@ -12,6 +12,6 @@ buildscript {
 allprojects {
     repositories {
         mavenCentral()
-        maven { url "http://bqbot.bq.local:8081/artifactory/libs-bq-local" }
+        mavenLocal()
     }
 }

@@ -22,5 +22,7 @@ android {
 }
 
 dependencies {
-    compile('com.mundoreader:droid2ino:1.2')
+    compile('com.bq.robotic:droid2ino:1.3@aar') {
+        transitive = true
+    }
 }

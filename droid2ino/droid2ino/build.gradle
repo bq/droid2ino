@@ -2,7 +2,7 @@ apply plugin: 'android-library'
 apply plugin: 'android-maven'
 
 version = '1.3'
-group = 'com.bq'
+group = 'com.bq.robotic'
 
 android {
     compileSdkVersion 19
