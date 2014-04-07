@@ -11,6 +11,8 @@ It allows you to:
 * Send messages to the Arduino board, which will respond you with an echo of what yo send to it. 
 
 * You can open a Serial Monitor in the Arduino IDE and send messages to the mobile device, and BluetoothChatWithArduino will show them.
+  
+If you have any questions you can contact us through the `DIY forum <http://diy.bq.com/forums/forum/forum/>`_  or sending an email to diy@bq.com.
 
 
 
@@ -66,6 +68,11 @@ Requirements
 - `Java JDK <http://www.oracle.com/technetwork/es/java/javase/downloads/jdk7-downloads-1880260.html>`_ 
 
 - `Android Studio <https://developer.android.com/sdk/installing/studio.html>`_ 
+
+- `Maven <http://maven.apache.org/download.cgi>`_.  If you use Ubuntu::
+    
+    sudo apt-get update
+    sudo apt-get install maven
 
 - `Gradle <http://www.gradle.org/downloads>`_ recommended version 1.10
   

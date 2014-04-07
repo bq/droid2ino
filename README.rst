@@ -25,6 +25,8 @@ It allows you to:
 * Use the Android support libraries v.7 in order to be able of using fragments, the action bar, the holo style, etc.
 
 * All the texts of the library are in English and Spanish, and it is quite easy to translate to other languages.
+  
+If you have any questions you can contact us through the `DIY forum <http://diy.bq.com/forums/forum/forum/>`_  or sending an email to diy@bq.com.
 
 
 Features
@@ -117,6 +119,11 @@ Requirements
 - `Java JDK <http://www.oracle.com/technetwork/es/java/javase/downloads/jdk7-downloads-1880260.html>`_ 
 
 - `Android Studio <https://developer.android.com/sdk/installing/studio.html>`_ 
+
+- `Maven <http://maven.apache.org/download.cgi>`_.  If you use Ubuntu::
+    
+    sudo apt-get update
+    sudo apt-get install maven
 
 - `Gradle <http://www.gradle.org/downloads>`_ recommended version 1.10
   

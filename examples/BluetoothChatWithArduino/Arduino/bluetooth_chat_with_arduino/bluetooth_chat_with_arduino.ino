@@ -20,7 +20,7 @@
  *   ****************************************************
  *   * Fecha: 05/03/2014                                *
  *   * Autor:Estefana Sarasola Elvira                   *
- *   * Mail: estefania.sarasola@bq.com                  *
+ *   * Mail: diy@bq.com                                 *
  *   * Licencia: GNU General Public License v3 or later *
  *   ****************************************************
  */
@@ -83,7 +83,7 @@ void setup(){
   
   /* Open the Bluetooth Serial and empty it */
   bluetoothSerial.begin(38400); 
-  bluetoothSerial.flush();       
+  bluetoothSerial.flush();      
   
   /* Open the Serial Monitor and empty it */
   Serial.begin(9600);  
@@ -108,7 +108,7 @@ void loop(){
     memset(mobileSerialBuffer, 0, sizeof(mobileSerialBuffer));  
     
     /* Wait for let the buffer fills up. Depends on the length of 
-       the data, 1 ms for character more or less */
+       the data, 1 ms for each character more or less */
     delay(bufferSize);
 
     /* Number of characters availables in the Bluetooth Serial */
@@ -163,7 +163,7 @@ void loop(){
     memset(computerSerialBuffer, 0, sizeof(computerSerialBuffer));
     
     /* Wait for let the buffer fills up. Depends on the length of 
-       the data, 1 ms for character more or less */
+       the data, 1 ms for each character more or less */
     delay(bufferSize); 
     /* Number of characters availables in the Bluetooth Serial */
     numCharComputerSerial = Serial.available();   
