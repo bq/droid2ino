@@ -6,4 +6,6 @@
     -->
     <dimen name="activity_horizontal_margin">128dp</dimen>
 
+    <dimen name="dialog_width">500dp</dimen>
+
 </resources>

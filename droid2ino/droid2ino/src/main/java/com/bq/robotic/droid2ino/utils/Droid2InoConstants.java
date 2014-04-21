@@ -29,7 +29,7 @@ import java.util.UUID;
  * Utilities class with all the constants of the library
  */
 
-public class AndroidinoConstants {
+public class Droid2InoConstants {
 
     // Message types sent from the BluetoothConnection Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
@@ -63,6 +63,9 @@ public class AndroidinoConstants {
     public static final int STATE_LISTEN = 1;     // now listening for incoming connections
     public static final int STATE_CONNECTING = 2; // now initiating an outgoing connection
     public static final int STATE_CONNECTED = 3;  // now connected to a remote device
+
+    // Save bundle keys
+    public static final String WAS_BLUETOOTH_ALLOWED_KEY = "wasBluetoothAllowedKey";
     
     // Read delimiters
     public static final String START_READ_DELIMITER = "&&";

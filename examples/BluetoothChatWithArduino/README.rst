@@ -29,7 +29,7 @@ Features
 
 * The Arduino code for this chat example is in the Arduino folder
 
-* If the Bluetooth was disabled before using the app, then when exiting the app it will be disabled again. If it was enabled, it will remain enabled
+* In order to save device's battery, if the Bluetooth was disabled before using the app, then when going out from the app, it will be disabled again. If it was enabled, it will remain enabled. If the user accepts enabling the Bluetooth (if it was disabled when entered in the app for the first time), the library remember it, so don't ask the user again and enable the Bluetooth directly when the user come back to the app.
 
 * Sample project to show how to use the library
 
@@ -37,7 +37,7 @@ Features
 Installation
 ============
 
-#. RoboPad depends on droid2ino library. Clone the droid2ino repository::
+#. BluetoothChatWithArduino depends on droid2ino library. Clone the droid2ino repository::
 
     git clone https://github.com/bq/droid2ino.git
 

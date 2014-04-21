@@ -23,10 +23,6 @@
 
 package com.bq.robotic.droid2ino;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
@@ -37,7 +33,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.bq.robotic.droid2ino.utils.AndroidinoConstants;
+import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 
 /**
@@ -70,7 +70,7 @@ public class BluetoothConnection {
      */
     public BluetoothConnection(Context context, Handler handler) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
-        mState = AndroidinoConstants.STATE_NONE;
+        mState = Droid2InoConstants.STATE_NONE;
         mHandler = handler;
         mContext = context;
     }
@@ -83,7 +83,7 @@ public class BluetoothConnection {
         mState = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(AndroidinoConstants.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        mHandler.obtainMessage(Droid2InoConstants.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
     /**
@@ -103,7 +103,7 @@ public class BluetoothConnection {
         // Cancel any thread currently running a connection
         if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
 
-        setState(AndroidinoConstants.STATE_LISTEN);
+        setState(Droid2InoConstants.STATE_LISTEN);
 
         // Start the thread to listen on a BluetoothServerSocket
         if (mAcceptThread == null) {
@@ -115,12 +115,11 @@ public class BluetoothConnection {
     /**
      * Start the ConnectThread to initiate a connection to a remote device.
      * @param device  The BluetoothDevice to connect
-     * @param secure Socket Security type - Secure (true) , Insecure (false)
      */
     public synchronized void connect(BluetoothDevice device) {
 
         // Cancel any thread attempting to make a connection
-        if (mState == AndroidinoConstants.STATE_CONNECTING) {
+        if (mState == Droid2InoConstants.STATE_CONNECTING) {
             if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
         }
 
@@ -130,7 +129,7 @@ public class BluetoothConnection {
         // Start the thread to connect with the given device
         mConnectThread = new ConnectThread(device);
         mConnectThread.start();
-        setState(AndroidinoConstants.STATE_CONNECTING);
+        setState(Droid2InoConstants.STATE_CONNECTING);
     }
 
     /**
@@ -158,13 +157,13 @@ public class BluetoothConnection {
         mConnectedThread.start();
 
         // Send the name of the connected device back to the UI Activity
-        Message msg = mHandler.obtainMessage(AndroidinoConstants.MESSAGE_DEVICE_NAME);
+        Message msg = mHandler.obtainMessage(Droid2InoConstants.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
-        bundle.putString(AndroidinoConstants.DEVICE_NAME, device.getName());
+        bundle.putString(Droid2InoConstants.DEVICE_NAME, device.getName());
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
-        setState(AndroidinoConstants.STATE_CONNECTED);
+        setState(Droid2InoConstants.STATE_CONNECTED);
     }
 
     /**
@@ -187,7 +186,7 @@ public class BluetoothConnection {
         	mAcceptThread = null;
         }
 
-        setState(AndroidinoConstants.STATE_NONE);
+        setState(Droid2InoConstants.STATE_NONE);
     }
 
     /**
@@ -200,7 +199,7 @@ public class BluetoothConnection {
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
-            if (mState != AndroidinoConstants.STATE_CONNECTED) return;
+            if (mState != Droid2InoConstants.STATE_CONNECTED) return;
             r = mConnectedThread;
         }
         // Perform the write unsynchronized
@@ -212,9 +211,9 @@ public class BluetoothConnection {
      */
     private void connectionFailed() {
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(AndroidinoConstants.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(Droid2InoConstants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(AndroidinoConstants.TOAST, mContext.getString(R.string.connecting_bluetooth_error));
+        bundle.putString(Droid2InoConstants.TOAST, mContext.getString(R.string.connecting_bluetooth_error));
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -227,9 +226,9 @@ public class BluetoothConnection {
      */
     private void connectionLost() {
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(AndroidinoConstants.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(Droid2InoConstants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(AndroidinoConstants.TOAST, mContext.getString(R.string.connection_lost_error));
+        bundle.putString(Droid2InoConstants.TOAST, mContext.getString(R.string.connection_lost_error));
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -251,8 +250,8 @@ public class BluetoothConnection {
 
             // Create a new listening server socket
             try {
-                tmp = mAdapter.listenUsingRfcommWithServiceRecord(AndroidinoConstants.SOCKET_NAME,
-                		AndroidinoConstants.MY_UUID);
+                tmp = mAdapter.listenUsingRfcommWithServiceRecord(Droid2InoConstants.SOCKET_NAME,
+                		Droid2InoConstants.MY_UUID);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Socket listen() failed", e);
             }
@@ -260,12 +259,12 @@ public class BluetoothConnection {
         }
 
         public void run() {
-            setName(AndroidinoConstants.ACCEPT_THREAD_NAME);
+            setName(Droid2InoConstants.ACCEPT_THREAD_NAME);
 
             BluetoothSocket socket = null;
 
             // Listen to the server socket if we're not connected
-            while (mState != AndroidinoConstants.STATE_CONNECTED) {
+            while (mState != Droid2InoConstants.STATE_CONNECTED) {
                 try {
                     // This is a blocking call and will only return on a
                     // successful connection or an exception
@@ -283,13 +282,13 @@ public class BluetoothConnection {
                 if (socket != null) {
                     synchronized (BluetoothConnection.this) {
                         switch (mState) {
-                        case AndroidinoConstants.STATE_LISTEN:
-                        case AndroidinoConstants.STATE_CONNECTING:
+                        case Droid2InoConstants.STATE_LISTEN:
+                        case Droid2InoConstants.STATE_CONNECTING:
                             // Situation normal. Start the connected thread.
                             connected(socket, socket.getRemoteDevice());
                             break;
-                        case AndroidinoConstants.STATE_NONE:
-                        case AndroidinoConstants.STATE_CONNECTED:
+                        case Droid2InoConstants.STATE_NONE:
+                        case Droid2InoConstants.STATE_CONNECTED:
                             // Either not ready or already connected. Terminate new socket.
                             try {
                                 socket.close();
@@ -333,7 +332,7 @@ public class BluetoothConnection {
             // given BluetoothDevice
             try {
                 tmp = device.createRfcommSocketToServiceRecord(
-                		AndroidinoConstants.MY_UUID);
+                		Droid2InoConstants.MY_UUID);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Socket create() failed", e);
             }
@@ -342,7 +341,7 @@ public class BluetoothConnection {
 
         public void run() {
             Log.i(LOG_TAG, "BEGIN mConnectThread");
-            setName(AndroidinoConstants.CONNECT_THREAD_NAME);
+            setName(Droid2InoConstants.CONNECT_THREAD_NAME);
 
             // Always cancel discovery because it will slow down a connection
             mAdapter.cancelDiscovery();
@@ -429,8 +428,8 @@ public class BluetoothConnection {
                     // Check if the string stored is a complete instruction, that starts with "_" and ends with "%"
                     // If the instruction is full send it to the handler and delete it from the StringBuilder
                     
-                    startIndex = readMessage.indexOf(AndroidinoConstants.START_READ_DELIMITER);
-                    endIndex = readMessage.indexOf(AndroidinoConstants.END_READ_DELIMITER);
+                    startIndex = readMessage.indexOf(Droid2InoConstants.START_READ_DELIMITER);
+                    endIndex = readMessage.indexOf(Droid2InoConstants.END_READ_DELIMITER);
                     
 //                    Log.e(LOG_TAG, "startindex: " + startIndex);
 //                    Log.e(LOG_TAG, "endIndex: " + startIndex);
@@ -441,7 +440,7 @@ public class BluetoothConnection {
                     	message = readMessage.substring(startIndex+2, endIndex);
                     	
                         // Send the obtained message to the UI Activity
-                        mHandler.obtainMessage(AndroidinoConstants.MESSAGE_READ, bytes, -1, message)
+                        mHandler.obtainMessage(Droid2InoConstants.MESSAGE_READ, bytes, -1, message)
                                 .sendToTarget();
                         
                         // Delete from the first character to delete possible broken messages and not add with the next message
@@ -471,7 +470,7 @@ public class BluetoothConnection {
                 mmOutStream.write(buffer);
 
                 // Share the sent message back to the UI Activity
-                mHandler.obtainMessage(AndroidinoConstants.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
+                mHandler.obtainMessage(Droid2InoConstants.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Exception during write", e);
             }

@@ -23,8 +23,6 @@
 
 package com.bq.robotic.droid2ino;
 
-import java.util.Set;
-
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -44,8 +42,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.bq.robotic.droid2ino.utils.AndroidinoConstants;
+import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
 import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
+
+import java.util.Set;
 
 /**
  * This dialog lists any paired devices and devices detected in the area 
@@ -90,7 +90,12 @@ public class DeviceListDialog extends Dialog {
             }
         });
 
-        
+        // Text to show when there isn't any devices paired to show in the list
+        TextView emptyPairedDevicesListItem = (TextView) findViewById(R.id.paired_devices_empty_item);
+
+        // Text to show when none device was found when the discovery to show in the list
+        TextView emptyNewDevicesListItem = (TextView) findViewById(R.id.new_devices_empty_item);
+
         // Initialize the object for the styling modifications of the search bluetooth device dialog
         mDialogStyle = new DeviceListDialogStyle((TextView) findViewById(R.id.dialog_title), 
         		(TextView) findViewById(R.id.title_paired_devices), 
@@ -106,11 +111,14 @@ public class DeviceListDialog extends Dialog {
         ListView pairedListView = (ListView) findViewById(R.id.paired_devices);
         pairedListView.setAdapter(mPairedDevicesArrayAdapter);
         pairedListView.setOnItemClickListener(mDeviceClickListener);
+        pairedListView.setEmptyView(emptyPairedDevicesListItem);
 
         // Find and set up the ListView for newly discovered devices
         ListView newDevicesListView = (ListView) findViewById(R.id.new_devices);
         newDevicesListView.setAdapter(mNewDevicesArrayAdapter);
         newDevicesListView.setOnItemClickListener(mDeviceClickListener);
+        newDevicesListView.setEmptyView(emptyNewDevicesListItem);
+        emptyNewDevicesListItem.setVisibility(View.GONE);
 
         // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -131,12 +139,9 @@ public class DeviceListDialog extends Dialog {
             findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
             	
-                mPairedDevicesArrayAdapter.add(device.getName() + AndroidinoConstants.NEW_LINE_CHARACTER + 
+                mPairedDevicesArrayAdapter.add(device.getName() + Droid2InoConstants.NEW_LINE_CHARACTER +
                 		device.getAddress());
             }
-        } else {
-            String noDevices = getContext().getResources().getText(R.string.none_paired).toString();
-            mPairedDevicesArrayAdapter.add(noDevices);
         }
     }
     
@@ -158,7 +163,7 @@ public class DeviceListDialog extends Dialog {
      * Start device discover with the BluetoothAdapter
      */
     private void doDiscovery() {
-        if (AndroidinoConstants.D) Log.d(LOG_TAG, "doDiscovery()");
+        if (Droid2InoConstants.D) Log.d(LOG_TAG, "doDiscovery()");
 
         // Indicate scanning in the title
 //        setProgressBarIndeterminateVisibility(true);
@@ -179,7 +184,7 @@ public class DeviceListDialog extends Dialog {
 
     // The on-click listener for all devices in the ListViews
     private OnItemClickListener mDeviceClickListener = new OnItemClickListener() {
-        public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
+        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
             // Cancel discovery because it's costly and we're about to connect
             mBtAdapter.cancelDiscovery();
 
@@ -189,11 +194,11 @@ public class DeviceListDialog extends Dialog {
 
             // Create the result Intent and include the MAC address
             Intent intent = new Intent();
-            intent.putExtra(AndroidinoConstants.EXTRA_DEVICE_ADDRESS, address);
+            intent.putExtra(Droid2InoConstants.EXTRA_DEVICE_ADDRESS, address);
 
             // Set result and finish this Activity
             Bundle values = new Bundle();
-            values.putString(AndroidinoConstants.EXTRA_DEVICE_ADDRESS, address);
+            values.putString(Droid2InoConstants.EXTRA_DEVICE_ADDRESS, address);
             if(mListener != null) mListener.onComplete(values);
             dismiss();
         }
@@ -216,22 +221,17 @@ public class DeviceListDialog extends Dialog {
                 LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0);
                 p.weight = 1;
                 pairedListView.setLayoutParams(p);
-                
+
                 // If it's already paired, skip it, because it's been listed already
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     mNewDevicesArrayAdapter.add(device.getName() + 
-                    		AndroidinoConstants.NEW_LINE_CHARACTER + device.getAddress());
+                    		Droid2InoConstants.NEW_LINE_CHARACTER + device.getAddress());
                 }
             // When discovery is finished, change the Activity title
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
 //                setProgressBarIndeterminateVisibility(false);
                 TextView dialogTitle = (TextView) findViewById(R.id.dialog_title);
                 dialogTitle.setText(R.string.select_device);
-                if (mNewDevicesArrayAdapter.getCount() == 0) {
-                    String noDevices = getContext().getResources().
-                    		getText(R.string.none_found).toString();
-                    mNewDevicesArrayAdapter.add(noDevices);
-                }
             }
         }
     };

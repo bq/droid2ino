@@ -38,7 +38,7 @@ import com.bq.robotic.droid2ino.BluetoothConnection;
 import com.bq.robotic.droid2ino.DeviceListDialog;
 import com.bq.robotic.droid2ino.DialogListener;
 import com.bq.robotic.droid2ino.R;
-import com.bq.robotic.droid2ino.utils.AndroidinoConstants;
+import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
 import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
 
 public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity {
@@ -58,7 +58,13 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	protected BluetoothAdapter mBluetoothAdapter = null;
 	// Member object for the BT connect services
 	protected BluetoothConnection mBluetoothConnection = null;
-	
+
+    // The user accepted to use the Bluetooth with the app
+    protected boolean wasEnableBluetoothAllowed = false;
+
+    // The user requested the list of the bluetooth devices available
+    protected boolean deviceConnectionWasRequested = false;
+
 	// Store the state of the Bluetooth before this app was executed in order to leave it as it was
 	private boolean wasBluetoothEnabled = false;
 
@@ -74,10 +80,17 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 			finish();
 			return;
 		}
-		
+
+        if(savedInstanceState != null) {
+            wasEnableBluetoothAllowed = savedInstanceState.getBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY);
+        }
+
 		if(mBluetoothAdapter.isEnabled()) {
 			wasBluetoothEnabled = true;
-		}
+
+		} else {
+            enableBluetooth();
+        }
 	}
 
 	@Override
@@ -86,25 +99,49 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 
 		// If BT is not on, request that it be enabled.
 		// setupSession() will then be called during onActivityResult
-		if (!mBluetoothAdapter.isEnabled()) {
-			Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			startActivityForResult(enableIntent, AndroidinoConstants.REQUEST_ENABLE_BT);
+		if (!mBluetoothAdapter.isEnabled() && wasEnableBluetoothAllowed) {
+            mBluetoothAdapter.enable();
+            setupSession();
 
 		} else { // Otherwise, setup BT connection
 			if (mBluetoothConnection == null)
 				setupSession();
 		}
 	}
-	
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		stopApp();
-	}
-	
-	
-	/**
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopApp();
+    }
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        stopApp();
+//    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        // Save UI state changes to the savedInstanceState.
+        // This bundle will be passed to onCreate if the process is
+        // killed and restarted.
+        savedInstanceState.putBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY, wasEnableBluetoothAllowed);
+    }
+
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore UI state from the savedInstanceState.
+        // This bundle has also been passed to onCreate.
+        wasEnableBluetoothAllowed = savedInstanceState.getBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY);
+    }
+
+
+    /**
 	 * This method stops all threads of the BluetoothConnection and disable the Bluetooth in the
 	 * mobile device if it was disabled before this app
 	 * This is protected in case that a child wants to close when the user press a button or other view
@@ -127,6 +164,20 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		// Stop the Bluetooth connect services
 		if (mBluetoothConnection != null) mBluetoothConnection.stop();
 	}
+
+
+    /**
+     * Enable the Bluetooth of the device
+     */
+    protected void enableBluetooth() {
+        if(wasEnableBluetoothAllowed) {
+            mBluetoothAdapter.enable();
+            setupSession();
+        } else {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, Droid2InoConstants.REQUEST_ENABLE_BT);
+        }
+    }
 	
 	
 	/**
@@ -179,7 +230,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	
 	/**
 	 * Sends a message.
-	 * @param message  A string of text to send.
+	 * @param messageBuffer  A string of text to send.
 	 */
 	protected void sendMessage(byte [] messageBuffer) {
 		// Check that we're actually connected before trying anything
@@ -200,7 +251,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * @return
 	 */
 	protected boolean isConnected() {
-		if (mBluetoothConnection.getState() != AndroidinoConstants.STATE_CONNECTED) {
+		if (mBluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
 			Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
 			return false;
 		} else {
@@ -208,13 +259,13 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		}
 	}
 	
-	
+
 	/**
 	 * Checks if the mobile device is connected to another device
 	 * @return
 	 */
 	protected boolean isConnectedWithoutToast() {
-		if (mBluetoothConnection == null || mBluetoothConnection.getState() != AndroidinoConstants.STATE_CONNECTED) {
+		if (mBluetoothConnection == null || mBluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
 			return false;
 		} else {
 			return true;
@@ -237,19 +288,47 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * Launch the {@link DeviceListDialog} to see devices and do scan
 	 */
 	protected DeviceListDialogStyle requestDeviceConnection() {
-		DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
-			public void onComplete(Bundle values) {
-				connectDevice(values);
-			}
-			public void onCancel() {}
-		});
-		
-		return deviceDialog.getDialogStyle();
+
+        if (mBluetoothAdapter.isEnabled()) {
+            DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
+                public void onComplete(Bundle values) {
+                    connectDevice(values);
+                }
+
+                public void onCancel() {
+                }
+            });
+            return deviceDialog.getDialogStyle();
+
+        } else {
+            deviceConnectionWasRequested = true;
+            enableBluetooth();
+            return null;
+        }
 	}
+
+    private DeviceListDialogStyle showListDialog() {
+        if(mBluetoothAdapter.isEnabled()) {
+            DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
+                public void onComplete(Bundle values) {
+                    connectDevice(values);
+                }
+
+                public void onCancel() {
+                }
+            });
+            deviceConnectionWasRequested = false;
+            return deviceDialog.getDialogStyle();
+
+        } else {
+            deviceConnectionWasRequested = false;
+            return null;
+        }
+    }
 
 	private void connectDevice(Bundle values) {
 		// Get the device MAC address
-		String address = values.getString(AndroidinoConstants.EXTRA_DEVICE_ADDRESS);
+		String address = values.getString(Droid2InoConstants.EXTRA_DEVICE_ADDRESS);
 		// Get the BluetoothDevice object
 		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 		// Attempt to connect to the device
@@ -258,7 +337,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 
 	private void connectDevice(Intent data) {
 		// Get the device MAC address
-		String address = data.getExtras().getString(AndroidinoConstants.EXTRA_DEVICE_ADDRESS);
+		String address = data.getExtras().getString(Droid2InoConstants.EXTRA_DEVICE_ADDRESS);
 		// Get the BluetoothDevice object
 		BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 		// Attempt to connect to the device
@@ -267,23 +346,39 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case AndroidinoConstants.REQUEST_CONNECT_DEVICE:
-			// When DeviceListActivity returns with a device to connect
-			if (resultCode == Activity.RESULT_OK) {
-				connectDevice(data);
-			}
-			break;        
-		case AndroidinoConstants.REQUEST_ENABLE_BT:
-			// When the request to enable Bluetooth returns
-			if (resultCode == Activity.RESULT_OK) {
-				// Bluetooth is now enabled, so set up a session
-				setupSession();
-			} else {
-				// User did not enable Bluetooth or an error occurred
-				Log.d(LOG_TAG, "BT not enabled");
-				Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-				finish();
-			}
+            case Droid2InoConstants.REQUEST_CONNECT_DEVICE:
+                // When DeviceListActivity returns with a device to connect
+                if (resultCode == Activity.RESULT_OK) {
+                    connectDevice(data);
+                }
+                break;
+
+            case Droid2InoConstants.REQUEST_ENABLE_BT:
+                // When the request to enable Bluetooth returns
+                if (resultCode == Activity.RESULT_OK) {
+                    // User accepted to enable the bluetooth
+                    wasEnableBluetoothAllowed = true;
+
+                    // Bluetooth is now enabled, so set up a session
+                    setupSession();
+
+                    // If the user requested the list of the bluetooth devices available, show it
+                    if(deviceConnectionWasRequested) {
+                        showListDialog();
+                    }
+
+                } else {
+                    // User did not enable Bluetooth or an error occurred
+                    Log.d(LOG_TAG, "BT not enabled");
+                    wasEnableBluetoothAllowed = false;
+
+                    Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
+
+                    // If the user requested the list of the bluetooth devices available, show it
+                    if(deviceConnectionWasRequested) {
+                        showListDialog();
+                    }
+                }
 		}
 	}	
 
@@ -292,40 +387,40 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case AndroidinoConstants.MESSAGE_STATE_CHANGE:
+			case Droid2InoConstants.MESSAGE_STATE_CHANGE:
 				switch (msg.arg1) {
-				case AndroidinoConstants.STATE_CONNECTED:
-				case AndroidinoConstants.STATE_CONNECTING:
-				case AndroidinoConstants.STATE_LISTEN:
-				case AndroidinoConstants.STATE_NONE:
+				case Droid2InoConstants.STATE_CONNECTED:
+				case Droid2InoConstants.STATE_CONNECTING:
+				case Droid2InoConstants.STATE_LISTEN:
+				case Droid2InoConstants.STATE_NONE:
 					onConnectionStatusUpdate(msg.arg1);
 					break;
 				}
 				break;
 				
-			case AndroidinoConstants.MESSAGE_WRITE:
+			case Droid2InoConstants.MESSAGE_WRITE:
 				byte[] writeBuf = (byte[]) msg.obj;
 				// construct a string from the buffer
 				String writeMessage = new String(writeBuf);
 				onWriteSuccess(writeMessage);
 				break;
 				
-			case AndroidinoConstants.MESSAGE_READ:
+			case Droid2InoConstants.MESSAGE_READ:
 				// construct a string from the valid bytes in the buffer
 				String readMessage = (String) msg.obj;
 				onNewMessage(readMessage);	
 				break;
 				
-			case AndroidinoConstants.MESSAGE_DEVICE_NAME:
+			case Droid2InoConstants.MESSAGE_DEVICE_NAME:
 				// save the connected device's name
-				mConnectedDeviceName = msg.getData().getString(AndroidinoConstants.DEVICE_NAME);
+				mConnectedDeviceName = msg.getData().getString(Droid2InoConstants.DEVICE_NAME);
 				Toast.makeText(getApplicationContext(), getString(R.string.connected_to) + 
 						mConnectedDeviceName, Toast.LENGTH_SHORT).show();
 				break;
 				
-			case AndroidinoConstants.MESSAGE_TOAST:
+			case Droid2InoConstants.MESSAGE_TOAST:
 				Toast.makeText(getApplicationContext(), 
-						msg.getData().getString(AndroidinoConstants.TOAST), Toast.LENGTH_SHORT).show();
+						msg.getData().getString(Droid2InoConstants.TOAST), Toast.LENGTH_SHORT).show();
 				break;
 			}
 		}

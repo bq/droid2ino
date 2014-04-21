@@ -53,7 +53,7 @@ Features
 
 * Arduino boards need a specific UUID, so don't change it!
 
-* If the Bluetooth was disabled before using the app, then when exiting the app it will be disabled again. If it was enabled, it will remain enabled.
+* In order to save device's battery, if the Bluetooth was disabled before using the app, then when going out from the app, it will be disabled again. If it was enabled, it will remain enabled. If the user accepts enabling the Bluetooth (if it was disabled when entered in the app for the first time), the library remember it, so don't ask the user again and enable the Bluetooth directly when the user come back to the app.
 
 * When exiting the program, the Bluetooth connection, if there is one, will be closed. furthermore, the library gives the possibility of closing the current Bluetooth connection in any moment without exiting the app (for example for a disconnect button)
 
@@ -81,7 +81,7 @@ Usage
 #. Add the droid2ino dependency to your app's build.gradle file. Due to a bug since gradle 1.9 we must declare the type of the dependencies and force transitiveness to true ::
 
     dependencies {
-      compile('com.bq:droid2ino:1.3@aar') {
+      compile('com.bq:droid2ino:1.4@aar') {
           transitive = true
       }
     }

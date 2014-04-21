@@ -4,7 +4,7 @@
     <!-- BluetoothChat -->
     <string name="send">Enviar</string>
     <string name="not_connected">No estás conectado a ningún dispositivo</string>
-    <string name="bt_not_enabled_leaving">El Bluetooth no está activado. Saliendo de la aplicación&#8230;</string>
+    <string name="bt_not_enabled">El Bluetooth no está activado. Necesitas activarlo para conectar con un dispositivo.</string>
     <string name="title_connecting">Conectando&#8230;</string>
     <string name="title_connected_to">Conectado a <xliff:g id="device_name">%1$s</xliff:g></string>
     <string name="title_not_connected">No conectado</string>
