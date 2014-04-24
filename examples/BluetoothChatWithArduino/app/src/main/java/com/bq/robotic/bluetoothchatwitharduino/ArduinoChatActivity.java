@@ -40,8 +40,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bq.robotic.droid2ino.activities.BaseBluetoothConnectionActivity;
-import com.bq.robotic.droid2ino.utils.AndroidinoConstants;
 import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
+import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
 
 public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 
@@ -118,26 +118,30 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.connect_scan:
-	
-				DeviceListDialogStyle deviceListDialogStyle = requestDeviceConnection();
-	
-				// Style the search bluetooth devices dialog			
-				deviceListDialogStyle.getSearchDevicesTitleView().setTextColor(Color.parseColor("#EDCEFF"));
-				deviceListDialogStyle.getSearchDevicesTitleView().setBackgroundColor(Color.parseColor("#5F5266"));
-				deviceListDialogStyle.getDevicesPairedTitleView().setBackgroundColor(Color.parseColor("#930CFF"));
-				deviceListDialogStyle.getNewDevicesTitleView().setBackgroundColor(Color.parseColor("#930CFF"));			
-	
+
+                requestDeviceConnection();
 				return true;
 		
 			case R.id.disconnect:
 		
-				stopBluetoothConnection();		
-		
+				stopBluetoothConnection();
 				return true;
 			}
 	
 		return false;
 	}
+
+
+    /**
+     * Style the lists with the bluetooth devices
+     * @return the styling class for the lists with the devices
+     */
+    protected void onDeviceListDialogStyleObtained(DeviceListDialogStyle deviceListDialogStyle) {
+        deviceListDialogStyle.getSearchDevicesTitleView().setTextColor(Color.parseColor("#EDCEFF"));
+        deviceListDialogStyle.getSearchDevicesTitleView().setBackgroundColor(Color.parseColor("#5F5266"));
+        deviceListDialogStyle.getDevicesPairedTitleView().setBackgroundColor(Color.parseColor("#930CFF"));
+        deviceListDialogStyle.getNewDevicesTitleView().setBackgroundColor(Color.parseColor("#930CFF"));
+    }
 
 
 	/**
@@ -146,20 +150,22 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 	@Override
 	public void onConnectionStatusUpdate(int connectionState) {
 		switch (connectionState) {
-			case AndroidinoConstants.STATE_CONNECTED:
+			case Droid2InoConstants.STATE_CONNECTED:
 				setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
 				mConversationArrayAdapter.clear();
 				menu.findItem(R.id.connect_scan).setEnabled(false);
 				menu.findItem(R.id.disconnect).setEnabled(true);
 				break;
-			case AndroidinoConstants.STATE_CONNECTING:
+			case Droid2InoConstants.STATE_CONNECTING:
 				setStatus(R.string.title_connecting);
 				break;
-			case AndroidinoConstants.STATE_LISTEN:
-			case AndroidinoConstants.STATE_NONE:
+			case Droid2InoConstants.STATE_LISTEN:
+			case Droid2InoConstants.STATE_NONE:
 				setStatus(R.string.title_not_connected);
-				menu.findItem(R.id.connect_scan).setEnabled(true);
-				menu.findItem(R.id.disconnect).setEnabled(false);
+                if(menu != null) {
+                    menu.findItem(R.id.connect_scan).setEnabled(true);
+                    menu.findItem(R.id.disconnect).setEnabled(false);
+                }
 				break;
 			}
 	}
@@ -177,7 +183,7 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity {
 
 	/**
 	 * Put the status of the connection in the action bar
-	 * @param resId
+	 * @param subTitle subtitle text
 	 */
 	private final void setStatus(CharSequence subTitle) {
 		final ActionBar actionBar = getSupportActionBar();

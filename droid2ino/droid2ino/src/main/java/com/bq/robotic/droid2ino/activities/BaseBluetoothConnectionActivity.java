@@ -38,8 +38,8 @@ import com.bq.robotic.droid2ino.BluetoothConnection;
 import com.bq.robotic.droid2ino.DeviceListDialog;
 import com.bq.robotic.droid2ino.DialogListener;
 import com.bq.robotic.droid2ino.R;
-import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
 import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
+import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
 
 public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity {
 
@@ -68,6 +68,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	// Store the state of the Bluetooth before this app was executed in order to leave it as it was
 	private boolean wasBluetoothEnabled = false;
 
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -88,14 +89,16 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		if(mBluetoothAdapter.isEnabled()) {
 			wasBluetoothEnabled = true;
 
-		} else {
-            enableBluetooth();
-        }
+		}
+
+//        else {
+//            enableBluetooth();
+//        }
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
+	protected void onResume() {
+		super.onResume();
 
 		// If BT is not on, request that it be enabled.
 		// setupSession() will then be called during onActivityResult
@@ -110,17 +113,18 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	}
 
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        stopApp();
-    }
-
 //    @Override
-//    protected void onPause() {
-//        super.onPause();
+//    protected void onStop() {
+//        super.onStop();
 //        stopApp();
 //    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopApp();
+    }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -170,6 +174,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
      * Enable the Bluetooth of the device
      */
     protected void enableBluetooth() {
+        Log.e(LOG_TAG, "bluettoth in library in enableBluetooth? " + wasEnableBluetoothAllowed);
         if(wasEnableBluetoothAllowed) {
             mBluetoothAdapter.enable();
             setupSession();
@@ -284,10 +289,11 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		return deviceDialog;
 	}
 
+
 	/**
 	 * Launch the {@link DeviceListDialog} to see devices and do scan
 	 */
-	protected DeviceListDialogStyle requestDeviceConnection() {
+	protected void requestDeviceConnection() {
 
         if (mBluetoothAdapter.isEnabled()) {
             DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
@@ -298,16 +304,21 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
                 public void onCancel() {
                 }
             });
-            return deviceDialog.getDialogStyle();
+            onDeviceListDialogStyleObtained(deviceDialog.getDialogStyle());
 
         } else {
             deviceConnectionWasRequested = true;
             enableBluetooth();
-            return null;
         }
 	}
 
-    private DeviceListDialogStyle showListDialog() {
+
+    /**
+     * Shows the Bluetooth devices available list to the user, when the user requested it
+     * but the Bluetooth wasn't enable, and the list must wait to the Bluetooth being enable
+     * for showing it
+     */
+    private void showListDialog() {
         if(mBluetoothAdapter.isEnabled()) {
             DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
                 public void onComplete(Bundle values) {
@@ -317,14 +328,24 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
                 public void onCancel() {
                 }
             });
+
+            onDeviceListDialogStyleObtained(deviceDialog.getDialogStyle());
             deviceConnectionWasRequested = false;
-            return deviceDialog.getDialogStyle();
 
         } else {
             deviceConnectionWasRequested = false;
-            return null;
         }
     }
+
+
+    /**
+     * Style the lists with the bluetooth devices
+     * @return the styling class for the lists with the devices
+     */
+    protected void onDeviceListDialogStyleObtained(DeviceListDialogStyle deviceListDialogStyle) {
+        // By default, do nothing
+    }
+
 
 	private void connectDevice(Bundle values) {
 		// Get the device MAC address

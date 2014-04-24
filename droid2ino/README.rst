@@ -36,7 +36,7 @@ Features
 
 * Use of `Android v7 Support Library  <http://developer.android.com/tools/support-library/features.html#v7>`_
 
-* Possibility of give a different style to the dialog shown when searching for the paired Bluetooth devices and new ones in order to get better integration with your app
+* Possibility of give a different style to the dialog shown when searching for the paired Bluetooth devices and new ones in order to get better integration with your app, by overriding the onDeviceListDialogStyleObtained() method.
 
 * Search and pair new devices
 
