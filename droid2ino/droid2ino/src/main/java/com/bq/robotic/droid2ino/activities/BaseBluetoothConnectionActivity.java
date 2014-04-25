@@ -113,18 +113,12 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	}
 
 
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        stopApp();
-//    }
-
-
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
         stopApp();
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {

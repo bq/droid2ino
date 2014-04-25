@@ -263,6 +263,12 @@ public class BluetoothConnection {
 
             BluetoothSocket socket = null;
 
+            //FIXME:
+            if(mmServerSocket == null) {
+                Log.e(LOG_TAG, "mmServerSocket in run of AcceptThread = null");
+                return;
+            }
+
             // Listen to the server socket if we're not connected
             while (mState != Droid2InoConstants.STATE_CONNECTED) {
                 try {
@@ -346,6 +352,12 @@ public class BluetoothConnection {
             // Always cancel discovery because it will slow down a connection
             mAdapter.cancelDiscovery();
 
+            //FIXME:
+            if(mmSocket == null) {
+                Log.e(LOG_TAG, "mmSocket in run of ConnectThread = null");
+                return;
+            }
+
             // Make a connection to the BluetoothSocket
             try {
                 // This is a blocking call and will only return on a
@@ -353,6 +365,7 @@ public class BluetoothConnection {
                 mmSocket.connect();
             } catch (IOException e) {
                 // Close the socket
+                Log.e(LOG_TAG, "error connecting the socket in run method of connect thread: " + e);
                 try {
                     mmSocket.close();
                 } catch (IOException e2) {

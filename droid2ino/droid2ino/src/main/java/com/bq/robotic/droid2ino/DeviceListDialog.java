@@ -227,6 +227,7 @@ public class DeviceListDialog extends Dialog {
                     mNewDevicesArrayAdapter.add(device.getName() + 
                     		Droid2InoConstants.NEW_LINE_CHARACTER + device.getAddress());
                 }
+
             // When discovery is finished, change the Activity title
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
 //                setProgressBarIndeterminateVisibility(false);
