@@ -168,7 +168,6 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
      * Enable the Bluetooth of the device
      */
     protected void enableBluetooth() {
-        Log.e(LOG_TAG, "bluettoth in library in enableBluetooth? " + wasEnableBluetoothAllowed);
         if(wasEnableBluetoothAllowed) {
             mBluetoothAdapter.enable();
             setupSession();
