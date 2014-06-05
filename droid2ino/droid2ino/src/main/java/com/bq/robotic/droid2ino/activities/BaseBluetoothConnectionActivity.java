@@ -176,20 +176,17 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
             startActivityForResult(enableIntent, Droid2InoConstants.REQUEST_ENABLE_BT);
         }
     }
-	
-	
-	/**
-	 * create a new bluetooth connection
-	 */
-	private void setupSession() {
 
-		// Initialize the BluetoothConnectService to perform bluetooth connections
-		mBluetoothConnection = new BluetoothConnection(this, mHandler);
 
-		// Initialize the buffer for outgoing messages
-//		mOutStringBuffer = new StringBuffer("");
+    /**
+     * create a new bluetooth connection
+     */
+    protected void setupSession() {
 
-	}
+        // Initialize the BluetoothConnectService to perform bluetooth connections
+        mBluetoothConnection = new BluetoothConnection(this, mHandler);
+
+    }
 	
 
 	/**

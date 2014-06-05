@@ -37,4 +37,15 @@ public abstract class BaseBluetoothSendOnlyActivity extends BaseBluetoothConnect
 		// This activity don't receive never from the Arduino
 	}
 
+    /**
+     * create a new bluetooth connection
+     */
+    @Override
+    protected void setupSession() {
+        super.setupSession();
+
+        mBluetoothConnection.setDuplexConnection(false);
+
+    }
+
 }

@@ -62,6 +62,7 @@ public class BluetoothConnection {
     private ConnectedThread mConnectedThread;
     private int mState;
     private Context mContext;
+    private boolean isDuplexConnection = true;
 
     /**
      * Constructor. Prepares a new BluetoothConnect session.
@@ -90,6 +91,26 @@ public class BluetoothConnection {
      * Return the current connection state. */
     public synchronized int getState() {
         return mState;
+    }
+
+
+    /**
+     * When the connection is only for sending from the mobile device, not in both directions, the
+     * thread mustn't be listening to the inputStream.
+     * Returns whether this connection is full duplex or not
+     * @return
+     */
+    public boolean isDuplexConnection() {
+        return isDuplexConnection;
+    }
+
+
+    /**
+     * Set if this connection to full duplex or not
+     * @param isDuplexConnection is full duplex or not
+     */
+    public void setDuplexConnection(boolean isDuplexConnection) {
+        this.isDuplexConnection = isDuplexConnection;
     }
 
     /**
@@ -205,6 +226,33 @@ public class BluetoothConnection {
         // Perform the write unsynchronized
         r.write(out);
     }
+
+
+    public OutputStream getBTOutputStream() {
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != Droid2InoConstants.STATE_CONNECTED) return null;
+            r = mConnectedThread;
+        }
+        // Perform the write unsynchronized
+        return r.getMmOutStream();
+    }
+
+
+    public InputStream getBTInputStream() {
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != Droid2InoConstants.STATE_CONNECTED) return null;
+            r = mConnectedThread;
+        }
+        // Perform the write unsynchronized
+        return r.getMmInStream();
+    }
+
 
     /**
      * Indicate that the connection attempt failed and notify the UI Activity.
@@ -431,7 +479,7 @@ public class BluetoothConnection {
             String message;
 
             // Keep listening to the InputStream while connected
-            while (true) {
+            while (isDuplexConnection) {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
@@ -495,6 +543,14 @@ public class BluetoothConnection {
             } catch (IOException e) {
                 Log.e(LOG_TAG, "close() of connect socket failed", e);
             }
+        }
+
+        public InputStream getMmInStream() {
+            return mmInStream;
+        }
+
+        public OutputStream getMmOutStream() {
+            return mmOutStream;
         }
     }
 

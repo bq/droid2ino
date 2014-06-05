@@ -81,7 +81,7 @@ Usage
 #. Add the droid2ino dependency to your app's build.gradle file. Due to a bug since gradle 1.9 we must declare the type of the dependencies and force transitiveness to true ::
 
     dependencies {
-      compile('com.bq:droid2ino:1.4@aar') {
+      compile('com.bq:droid2ino:1.5@aar') {
           transitive = true
       }
     }
