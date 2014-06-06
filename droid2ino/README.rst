@@ -1,4 +1,4 @@
-This project provides a Android library that allows communicate an Android device with an Arduino board using a Bluetooth connection.
+This project provides an Android library that allows communicate an Android device with an Arduino board using a Bluetooth connection.
 
 This project is based in the bluetooth-lib of khanmutzuar, but adapted for working with Arduino boards and with several other improvements. You can find bluetooth-lib here:
 https://github.com/khanmurtuza/bluetooth-lib
