@@ -135,8 +135,12 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
     protected void onPause() {
         super.onPause();
 
-        // Unregister the bluetooth disconnect receiver
-        unregisterReceiver(bluetoothDisconnectReceiver);
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter != null) {
+            // Unregister the bluetooth disconnect receiver
+            unregisterReceiver(bluetoothDisconnectReceiver);
+        }
+
     }
 
 
