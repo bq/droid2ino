@@ -27,7 +27,7 @@
     <string name="connected_to">"Conectado a "</string>
     
     <!-- Errors -->
-    <string name="bluetooth_not_available">El Bluetooth no está disponible</string>
+    <string name="bluetooth_not_available">El Bluetooth no está disponible. Comprueba que tu dispositivo móvil soporta conexiones Bluetooth.</string>
     <string name="connecting_bluetooth_error">No fue posible conectar con el dispositivo</string>
     <string name="connection_lost_error">Se perdió la conexión con el dispositivo</string>
 

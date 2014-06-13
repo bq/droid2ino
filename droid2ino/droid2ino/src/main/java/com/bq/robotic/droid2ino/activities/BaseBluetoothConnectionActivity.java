@@ -26,7 +26,10 @@ package com.bq.robotic.droid2ino.activities;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -68,8 +71,11 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	// Store the state of the Bluetooth before this app was executed in order to leave it as it was
 	private boolean wasBluetoothEnabled = false;
 
+    private BroadcastReceiver bluetoothDisconnectReceiver;
+    private IntentFilter disconnectBluetoothFilter;
 
-	@Override
+
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -77,8 +83,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		// If the adapter is null, then Bluetooth is not supported
 		if (mBluetoothAdapter == null) {
-			Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
-			finish();
+			//Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
 			return;
 		}
 
@@ -91,6 +96,9 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 
 		}
 
+        bluetoothDisconnectReceiver = new DisconnectBluetoothBroadcastReceiver();
+        disconnectBluetoothFilter = new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED");
+
 //        else {
 //            enableBluetooth();
 //        }
@@ -99,6 +107,15 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // register the Bluetooth disconnect receiver
+        registerReceiver(bluetoothDisconnectReceiver, disconnectBluetoothFilter);
 
 		// If BT is not on, request that it be enabled.
 		// setupSession() will then be called during onActivityResult
@@ -110,12 +127,28 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 			if (mBluetoothConnection == null)
 				setupSession();
 		}
+
 	}
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Unregister the bluetooth disconnect receiver
+        unregisterReceiver(bluetoothDisconnectReceiver);
+    }
 
 
     @Override
     protected void onStop() {
         super.onStop();
+
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            return;
+        }
+
         stopApp();
     }
 
@@ -246,7 +279,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * @return
 	 */
 	protected boolean isConnected() {
-		if (mBluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
+		if (mBluetoothAdapter == null || mBluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
 			Toast.makeText(this, R.string.not_connected, Toast.LENGTH_SHORT).show();
 			return false;
 		} else {
@@ -260,7 +293,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * @return
 	 */
 	protected boolean isConnectedWithoutToast() {
-		if (mBluetoothConnection == null || mBluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
+		if (mBluetoothAdapter == null || mBluetoothConnection == null || mBluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
 			return false;
 		} else {
 			return true;
@@ -284,6 +317,12 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * Launch the {@link DeviceListDialog} to see devices and do scan
 	 */
 	protected void requestDeviceConnection() {
+
+        // If the adapter is null, then Bluetooth is not supported
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
+            return;
+        }
 
         if (mBluetoothAdapter.isEnabled()) {
             DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
@@ -458,5 +497,33 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 	 * @param message new message string
 	 */
 	public abstract void onNewMessage(String message);
+
+
+
+    /***********************************************************************************************
+     *
+     * This is the bluetooth disconnect broadcast receiver. When a device is disconnected, this
+     * class is triggered and stops the connected thread. This is an inner class in order to call
+     * easier the stop() method of the BluetoothConnection object. Furthermore, the app disable
+     * the Bluetooth when is not visible, so it has no sense to have this in the manifest and be
+     * called always, because the connection is already closed in that cases.
+     *
+     **********************************************************************************************/
+
+    public class DisconnectBluetoothBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+//            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+            if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+                Log.i(LOG_TAG, "The connection was lost. The Bluetooth device was disconnected.");
+                mBluetoothConnection.stop();
+            }
+
+        }
+
+    }
 
 }

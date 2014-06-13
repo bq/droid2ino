@@ -110,7 +110,7 @@ Installation
 
 #. In Android Studio go to ``File`` > ``Open`` and select the droid2ino gradle project inside the previous cloned project (that with the green robot icon, the droid2ino library folder not the repository one with the example project inside too).
 
-#. If your are going to use droid2ino for one of your projects, follow the instructions of the `Usage section <https://github.com/bq/droid2ino#usage>`_ in order to installing it in your local repository and add it the dependency needed.
+#. If your are going to use droid2ino for one of your projects, follow the instructions of the `Usage section <https://github.com/bq/droid2ino#usage>`_ in order to installing it in your local repository and add to it the dependency needed.
 
 
 Requirements
