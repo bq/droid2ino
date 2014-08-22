@@ -45,6 +45,10 @@
 #define rxPin 11
 #define txPin 12
 
+/* Bauderate of the Bluetooth*/
+#define MI_PRIMER_KIT_DE_ROBOTICA_BLUETOOTH    38400
+#define BQ_ZUM_BLUETOOTH                       19200
+
 /* Values definition */
 // 63 bytes is the max. that the function Serial.read() can manage
 #define bufferSize 63 
@@ -82,11 +86,12 @@ void setup(){
   pinMode(txPin, OUTPUT);
   
   /* Open the Bluetooth Serial and empty it */
-  bluetoothSerial.begin(38400); 
+  //Serial.begin(BQ_ZUM_BLUETOOTH);  
+  Serial.begin(MI_PRIMER_KIT_DE_ROBOTICA_BLUETOOTH); 
   bluetoothSerial.flush();      
   
   /* Open the Serial Monitor and empty it */
-  Serial.begin(9600);  
+  Serial.begin(115200);  
   Serial.flush();
   
 }

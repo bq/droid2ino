@@ -494,7 +494,7 @@ public class BluetoothConnection {
                     
 //                    Log.e(LOG_TAG, "startindex: " + startIndex);
 //                    Log.e(LOG_TAG, "endIndex: " + startIndex);
-//                    Log.e(LOG_TAG, "readMessage: " + readMessage);
+                    Log.d(LOG_TAG, "readMessage: " + readMessage);
                     
                     if((startIndex != -1) && (endIndex != -1) && (startIndex < endIndex)) {
                     	
