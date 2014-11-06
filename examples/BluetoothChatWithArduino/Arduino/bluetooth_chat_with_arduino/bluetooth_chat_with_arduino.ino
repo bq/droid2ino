@@ -86,8 +86,8 @@ void setup(){
   pinMode(txPin, OUTPUT);
   
   /* Open the Bluetooth Serial and empty it */
-  //Serial.begin(BQ_ZUM_BLUETOOTH);  
-  Serial.begin(MI_PRIMER_KIT_DE_ROBOTICA_BLUETOOTH); 
+  //bluetoothSerial.begin(BQ_ZUM_BLUETOOTH);  
+  bluetoothSerial.begin(MI_PRIMER_KIT_DE_ROBOTICA_BLUETOOTH); 
   bluetoothSerial.flush();      
   
   /* Open the Serial Monitor and empty it */
