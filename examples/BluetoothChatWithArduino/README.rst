@@ -74,7 +74,7 @@ Requirements
     sudo apt-get update
     sudo apt-get install maven
 
-- `Gradle <http://www.gradle.org/downloads>`_ recommended version 1.10
+- `Gradle <http://www.gradle.org/downloads>`_ recommended version 2.2.1
   
 - `Arduino IDE <http://arduino.cc/en/Main/Software#.UzBT5HX5Pj4>`_ 
 
