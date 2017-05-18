@@ -1,18 +1,19 @@
 apply plugin: 'com.android.library'
-//apply plugin: 'android-maven'
 apply plugin: 'com.github.dcendents.android-maven'
 
-
-version = '2.0'
+// Used for maven local, in order to install the library in to the .m2 folder
+version = '2.1'
 group = 'com.bq.robotic'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion 8
-        targetSdkVersion 20
+        minSdkVersion 9
+        targetSdkVersion 25
+        versionCode 10
+        versionName "2.1"
     }
 
     buildTypes {
@@ -24,5 +25,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.+'
+    compile 'com.android.support:appcompat-v7:25.3.1'
 }
+
+// Use 'gradle install' in order to install the .aar in the local maven repository

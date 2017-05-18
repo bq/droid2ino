@@ -3,4 +3,11 @@
 
     <string name="app_name">BluetoothChatWithArduino</string>
 
+    <!--Permissions-->
+    <string name="permission_required">Permission is needed</string>
+    <string name="permission_location">Location permission is needed to search for the bluetooth devices
+        near you to connect to them</string>
+    <string name="rationale_location">Location permission is needed to search for the bluetooth devices
+        near you to connect to them. You will only be able to connect to paired devices</string>
+
 </resources>

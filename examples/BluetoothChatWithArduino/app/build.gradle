@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion 8
-        targetSdkVersion 20
+        minSdkVersion 9
+        targetSdkVersion 25
     }
 
     buildTypes {
@@ -22,7 +22,9 @@ android {
 }
 
 dependencies {
-    compile('com.bq.robotic:droid2ino:+@aar') {
+    compile('com.bq.robotic:droid2ino:2.1@aar') {
         transitive = true
     }
+
+    compile 'pub.devrel:easypermissions:0.4.0'
 }

@@ -81,17 +81,14 @@ Usage
 #. Add the droid2ino dependency to your app's build.gradle file. Due to a bug since gradle 1.9 we must declare the type of the dependencies and force transitiveness to true ::
 
     dependencies {
-      compile('com.bq:droid2ino:2.0@aar') {
+      compile('com.bq:droid2ino:2.1@aar') {
           transitive = true
       }
     }
 
 
-#. Add the Bluetooth permissions to the AndroidManifest.xml of your project::
+#. Manage the Location permission as you please if you are using Android M or a later version.
  
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-
 
 Installation
 ============
@@ -125,16 +122,11 @@ Requirements
     sudo apt-get update
     sudo apt-get install maven
 
-- `Gradle <http://www.gradle.org/downloads>`_ recommended version 2.2.1
+- `Gradle <http://www.gradle.org/downloads>`_ recommended version 3.3
   
 - `Arduino IDE <http://arduino.cc/en/Main/Software#.UzBT5HX5Pj4>`_ 
 
 - Arduino board with Bluetooth
-
-- The app that will use this library must add the following permission, if not it will throw an Exception and will close::
-
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
 
 - The app theme must have the Theme.AppCompat as parent in the style.xml file
 

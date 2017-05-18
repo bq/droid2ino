@@ -8,9 +8,9 @@ This app is a simple example of what you can do with the droid2ino library.
 
 It allows you to:
 
-* Send messages to the Arduino board, which will respond you with an echo of what yo send to it. 
+* Send messages to the Arduino board, which will respond you with an echo of what you send to it. 
 
-* You can open a Serial Monitor in the Arduino IDE and send messages to the mobile device, and BluetoothChatWithArduino will show them.
+* You can open a Serial Monitor in the Arduino IDE and send messages to the mobile device, and BluetoothChatWithArduino will show them (only with an external bluetooth module by using the Software Serial library. BQ Zum only has one serial communication port, so it can not use this option).
   
 If you have any questions you can contact us through the `DIY forum <http://diy.bq.com/forums/forum/forum/>`_  or sending an email to diy@bq.com.
 
@@ -58,7 +58,7 @@ Installation
 
 #. In Android Studio go to ``File`` > ``Open`` and select the BluetoothChatWithArduino from the example folder of the cloned repository.
 
-#. Upload the Arduino code to your robot. You can find it in the Arduino folder of this project.
+#. Upload the Arduino code to your robot. You can find it in the Arduino folder of this project. Use the code in the ``using_integrated_bluetooth_module_(bqzum)`` folder if your board only has one serial communication port (as in the BQ Zum board) or use the code in ``using_external_bluetooth_module`` folder if you are using an external bluetooth module.
 
 
 
@@ -74,7 +74,7 @@ Requirements
     sudo apt-get update
     sudo apt-get install maven
 
-- `Gradle <http://www.gradle.org/downloads>`_ recommended version 2.2.1
+- `Gradle <http://www.gradle.org/downloads>`_ version 3.3
   
 - `Arduino IDE <http://arduino.cc/en/Main/Software#.UzBT5HX5Pj4>`_ 
 
