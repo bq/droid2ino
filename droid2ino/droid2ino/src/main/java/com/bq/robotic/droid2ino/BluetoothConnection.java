@@ -280,6 +280,8 @@ public class BluetoothConnection {
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
+        mState = Droid2InoConstants.STATE_NONE;
+
         // Start the service over to restart listening mode
         BluetoothConnection.this.start();
     }
@@ -304,6 +306,7 @@ public class BluetoothConnection {
                 Log.e(LOG_TAG, "Socket listen() failed", e);
             }
             mmServerSocket = tmp;
+            mState = Droid2InoConstants.STATE_LISTEN;
         }
 
         public void run() {
@@ -391,6 +394,7 @@ public class BluetoothConnection {
                 Log.e(LOG_TAG, "Socket create() failed", e);
             }
             mmSocket = tmp;
+            mState = Droid2InoConstants.STATE_CONNECTING;
         }
 
         public void run() {
@@ -468,6 +472,7 @@ public class BluetoothConnection {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
+            mState = Droid2InoConstants.STATE_CONNECTED;
         }
 
         public void run() {
@@ -479,7 +484,7 @@ public class BluetoothConnection {
             String message;
 
             // Keep listening to the InputStream while connected
-            while (isDuplexConnection) {
+            while (isDuplexConnection && mState == Droid2InoConstants.STATE_CONNECTED) {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
