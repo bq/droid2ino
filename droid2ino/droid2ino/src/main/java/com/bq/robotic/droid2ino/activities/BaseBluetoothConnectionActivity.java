@@ -34,7 +34,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -45,7 +45,7 @@ import com.bq.robotic.droid2ino.R;
 import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
 import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
 
-public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity {
+public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity {
 
    /**
     * This is the main abstract Activity that can be used by clients to setup Bluetooth.
@@ -55,13 +55,13 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
    private static final String LOG_TAG = "BaseConnectActivity";
 
    // Name of the connected device
-   protected String mConnectedDeviceName = null;
+   protected String connectedDeviceName = null;
    // String buffer for outgoing messages
 //	protected StringBuffer mOutStringBuffer;
    // Local Bluetooth adapter
-   protected BluetoothAdapter mBluetoothAdapter = null;
+   protected BluetoothAdapter bluetoothAdapter = null;
    // Member object for the BT connect services
-   protected BluetoothConnection mBluetoothConnection = null;
+   protected BluetoothConnection bluetoothConnection = null;
 
    // The user accepted to use the Bluetooth with the app
    protected boolean wasEnableBluetoothAllowed = false;
@@ -86,9 +86,9 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
       super.onCreate(savedInstanceState);
 
       // Get local Bluetooth adapter
-      mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+      bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
       // If the adapter is null, then Bluetooth is not supported
-      if (mBluetoothAdapter == null) {
+      if (bluetoothAdapter == null) {
          //Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
          return;
       }
@@ -97,7 +97,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
          wasEnableBluetoothAllowed = savedInstanceState.getBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY);
       }
 
-      if (mBluetoothAdapter.isEnabled()) {
+      if (bluetoothAdapter.isEnabled()) {
          wasBluetoothEnabled = true;
 
       }
@@ -120,7 +120,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
       super.onResume();
 
       // If the adapter is null, then Bluetooth is not supported
-      if (mBluetoothAdapter == null) {
+      if (bluetoothAdapter == null) {
          Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
          return;
       }
@@ -130,12 +130,12 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 
       // If BT is not on, request that it be enabled.
       // setupSession() will then be called during onActivityResult
-      if (!mBluetoothAdapter.isEnabled() && wasEnableBluetoothAllowed) {
-         mBluetoothAdapter.enable();
+      if (!bluetoothAdapter.isEnabled() && wasEnableBluetoothAllowed) {
+         bluetoothAdapter.enable();
          setupSession();
 
       } else { // Otherwise, setup BT connection
-         if (mBluetoothConnection == null)
+         if (bluetoothConnection == null)
             setupSession();
       }
 
@@ -147,7 +147,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
       super.onPause();
 
       // If the adapter is null, then Bluetooth is not supported
-      if (mBluetoothAdapter != null) {
+      if (bluetoothAdapter != null) {
          // Unregister the bluetooth disconnect receiver
          unregisterReceiver(bluetoothDisconnectReceiver);
       }
@@ -160,7 +160,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
       super.onStop();
 
       // If the adapter is null, then Bluetooth is not supported
-      if (mBluetoothAdapter == null) {
+      if (bluetoothAdapter == null) {
          return;
       }
 
@@ -211,8 +211,8 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
       stopBluetoothConnection();
 
       // Disable the Bluetooth if it was disable before executing this app
-      if (mBluetoothAdapter.isEnabled() && !wasBluetoothEnabled) {
-         mBluetoothAdapter.disable();
+      if (bluetoothAdapter.isEnabled() && !wasBluetoothEnabled) {
+         bluetoothAdapter.disable();
       }
    }
 
@@ -222,7 +222,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
     */
    protected void stopBluetoothConnection() {
       // Stop the Bluetooth connect services
-      if (mBluetoothConnection != null) mBluetoothConnection.stop();
+      if (bluetoothConnection != null) bluetoothConnection.stop();
    }
 
 
@@ -231,7 +231,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
     */
    protected void enableBluetooth() {
       if (wasEnableBluetoothAllowed) {
-         mBluetoothAdapter.enable();
+         bluetoothAdapter.enable();
          setupSession();
       } else {
          Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -246,7 +246,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
    protected void setupSession() {
 
       // Initialize the BluetoothConnectService to perform bluetooth connections
-      mBluetoothConnection = new BluetoothConnection(this, mHandler);
+      bluetoothConnection = new BluetoothConnection(this, mHandler);
 
    }
 
@@ -255,7 +255,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
     * Helper method to start discovering devices.
     */
    protected void ensureDiscoverable() {
-      if (mBluetoothAdapter.getScanMode() !=
+      if (bluetoothAdapter.getScanMode() !=
          BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
          Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
          discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
@@ -268,7 +268,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
     *
     * @param message A string of text to send.
     */
-   protected void sendMessage(String message) {
+   protected void sendMessage(final String message) {
       // Check that we're actually connected before trying anything
       if (!isConnected()) {
          return;
@@ -281,7 +281,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 
          sendHandler.post(new Runnable() {
             @Override public void run() {
-               mBluetoothConnection.write(send);
+               bluetoothConnection.write(send);
             }
          });
 
@@ -304,7 +304,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 
       // Check that there's actually something to send
       if (messageBuffer.length > 0) {
-         mBluetoothConnection.write(messageBuffer);
+         bluetoothConnection.write(messageBuffer);
 
       }
    }
@@ -316,7 +316,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
     * @return
     */
    protected boolean isConnected() {
-      if (mBluetoothAdapter == null || mBluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
+      if (bluetoothAdapter == null || bluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
          runOnUiThread(new Runnable() {
             @Override public void run() {
                Toast.makeText(BaseBluetoothConnectionActivity.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
@@ -336,7 +336,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
     * @return
     */
    protected boolean isConnectedWithoutToast() {
-      if (mBluetoothAdapter == null || mBluetoothConnection == null || mBluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
+      if (bluetoothAdapter == null || bluetoothConnection == null || bluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
          return false;
       } else {
          return true;
@@ -363,12 +363,12 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
    protected void requestDeviceConnection() {
 
       // If the adapter is null, then Bluetooth is not supported
-      if (mBluetoothAdapter == null) {
+      if (bluetoothAdapter == null) {
          Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
          return;
       }
 
-      if (mBluetoothAdapter.isEnabled()) {
+      if (bluetoothAdapter.isEnabled()) {
          DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
             public void onComplete(Bundle values) {
                connectDevice(values);
@@ -392,7 +392,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
     * for showing it
     */
    private void showListDialog() {
-      if (mBluetoothAdapter.isEnabled()) {
+      if (bluetoothAdapter.isEnabled()) {
          DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
             public void onComplete(Bundle values) {
                connectDevice(values);
@@ -425,18 +425,18 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
       // Get the device MAC address
       String address = values.getString(Droid2InoConstants.EXTRA_DEVICE_ADDRESS);
       // Get the BluetoothDevice object
-      BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+      BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
       // Attempt to connect to the device
-      mBluetoothConnection.connect(device);
+      bluetoothConnection.connect(device);
    }
 
    private void connectDevice(Intent data) {
       // Get the device MAC address
       String address = data.getExtras().getString(Droid2InoConstants.EXTRA_DEVICE_ADDRESS);
       // Get the BluetoothDevice object
-      BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+      BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
       // Attempt to connect to the device
-      mBluetoothConnection.connect(device);
+      bluetoothConnection.connect(device);
    }
 
    public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -508,9 +508,9 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 
             case Droid2InoConstants.MESSAGE_DEVICE_NAME:
                // save the connected device's name
-               mConnectedDeviceName = msg.getData().getString(Droid2InoConstants.DEVICE_NAME);
+               connectedDeviceName = msg.getData().getString(Droid2InoConstants.DEVICE_NAME);
                Toast.makeText(getApplicationContext(), getString(R.string.connected_to) +
-                  mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                  connectedDeviceName, Toast.LENGTH_SHORT).show();
                break;
 
             case Droid2InoConstants.MESSAGE_TOAST:
@@ -566,7 +566,7 @@ public abstract class BaseBluetoothConnectionActivity extends ActionBarActivity 
 
          if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
             Log.i(LOG_TAG, "The connection was lost. The Bluetooth device was disconnected.");
-            mBluetoothConnection.stop();
+            bluetoothConnection.stop();
          }
 
       }

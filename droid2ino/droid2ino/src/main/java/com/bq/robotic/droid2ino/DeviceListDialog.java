@@ -59,17 +59,17 @@ public class DeviceListDialog extends Dialog {
     private static final String LOG_TAG = "DeviceListActivity";
 
     // Member fields
-    private BluetoothAdapter mBtAdapter;
-    private ArrayAdapter<String> mPairedDevicesArrayAdapter;
-    private ArrayAdapter<String> mNewDevicesArrayAdapter;
+    private BluetoothAdapter btAdapter;
+    private ArrayAdapter<String> pairedDevicesArrayAdapter;
+    private ArrayAdapter<String> newDevicesArrayAdapter;
     
-    private DeviceListDialogStyle mDialogStyle;
+    private DeviceListDialogStyle dialogStyle;
     
-    private DialogListener mListener;
+    private DialogListener listener;
     
     public DeviceListDialog(Context context, DialogListener listener) {
         super(context);
-        mListener = listener;
+        this.listener = listener;
     }
 
     @Override
@@ -97,25 +97,25 @@ public class DeviceListDialog extends Dialog {
         TextView emptyNewDevicesListItem = (TextView) findViewById(R.id.new_devices_empty_item);
 
         // Initialize the object for the styling modifications of the search bluetooth device dialog
-        mDialogStyle = new DeviceListDialogStyle((TextView) findViewById(R.id.dialog_title), 
+        dialogStyle = new DeviceListDialogStyle((TextView) findViewById(R.id.dialog_title),
         		(TextView) findViewById(R.id.title_paired_devices), 
         		(TextView) findViewById(R.id.title_new_devices));
         
         
         // Initialize array adapters. One for already paired devices and
         // one for newly discovered devices
-        mPairedDevicesArrayAdapter = new ArrayAdapter<String>(getContext(), R.layout.device_name);
-        mNewDevicesArrayAdapter = new ArrayAdapter<String>(getContext(), R.layout.device_name);
+        pairedDevicesArrayAdapter = new ArrayAdapter<String>(getContext(), R.layout.device_name);
+        newDevicesArrayAdapter = new ArrayAdapter<String>(getContext(), R.layout.device_name);
 
         // Find and set up the ListView for paired devices
         ListView pairedListView = (ListView) findViewById(R.id.paired_devices);
-        pairedListView.setAdapter(mPairedDevicesArrayAdapter);
+        pairedListView.setAdapter(pairedDevicesArrayAdapter);
         pairedListView.setOnItemClickListener(mDeviceClickListener);
         pairedListView.setEmptyView(emptyPairedDevicesListItem);
 
         // Find and set up the ListView for newly discovered devices
         ListView newDevicesListView = (ListView) findViewById(R.id.new_devices);
-        newDevicesListView.setAdapter(mNewDevicesArrayAdapter);
+        newDevicesListView.setAdapter(newDevicesArrayAdapter);
         newDevicesListView.setOnItemClickListener(mDeviceClickListener);
         newDevicesListView.setEmptyView(emptyNewDevicesListItem);
         emptyNewDevicesListItem.setVisibility(View.GONE);
@@ -129,17 +129,17 @@ public class DeviceListDialog extends Dialog {
         getContext().registerReceiver(mReceiver, filter);
 
         // Get the local Bluetooth adapter
-        mBtAdapter = BluetoothAdapter.getDefaultAdapter();
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // Get a set of currently paired devices
-        Set<BluetoothDevice> pairedDevices = mBtAdapter.getBondedDevices();
+        Set<BluetoothDevice> pairedDevices = btAdapter.getBondedDevices();
 
         // If there are paired devices, add each one to the ArrayAdapter
         if (pairedDevices.size() > 0) {
             findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
             	
-                mPairedDevicesArrayAdapter.add(device.getName() + Droid2InoConstants.NEW_LINE_CHARACTER +
+                pairedDevicesArrayAdapter.add(device.getName() + Droid2InoConstants.NEW_LINE_CHARACTER +
                 		device.getAddress());
             }
         }
@@ -151,8 +151,8 @@ public class DeviceListDialog extends Dialog {
         super.onStop();
 
         // Make sure we're not doing discovery anymore
-        if (mBtAdapter != null) {
-            mBtAdapter.cancelDiscovery();
+        if (btAdapter != null) {
+            btAdapter.cancelDiscovery();
         }
 
         // Unregister broadcast listeners
@@ -174,19 +174,19 @@ public class DeviceListDialog extends Dialog {
         findViewById(R.id.title_new_devices).setVisibility(View.VISIBLE);
 
         // If we're already discovering, stop it
-        if (mBtAdapter.isDiscovering()) {
-            mBtAdapter.cancelDiscovery();
+        if (btAdapter.isDiscovering()) {
+            btAdapter.cancelDiscovery();
         }
 
         // Request discover from BluetoothAdapter
-        mBtAdapter.startDiscovery();
+        btAdapter.startDiscovery();
     }
 
     // The on-click listener for all devices in the ListViews
     private OnItemClickListener mDeviceClickListener = new OnItemClickListener() {
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
             // Cancel discovery because it's costly and we're about to connect
-            mBtAdapter.cancelDiscovery();
+            btAdapter.cancelDiscovery();
 
             // Get the device MAC address, which is the last 17 chars in the View
             String info = ((TextView) v).getText().toString();
@@ -199,7 +199,7 @@ public class DeviceListDialog extends Dialog {
             // Set result and finish this Activity
             Bundle values = new Bundle();
             values.putString(Droid2InoConstants.EXTRA_DEVICE_ADDRESS, address);
-            if(mListener != null) mListener.onComplete(values);
+            if(listener != null) listener.onComplete(values);
             dismiss();
         }
     };
@@ -224,7 +224,7 @@ public class DeviceListDialog extends Dialog {
 
                 // If it's already paired, skip it, because it's been listed already
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    mNewDevicesArrayAdapter.add(device.getName() + 
+                    newDevicesArrayAdapter.add(device.getName() +
                     		Droid2InoConstants.NEW_LINE_CHARACTER + device.getAddress());
                 }
 
@@ -239,7 +239,7 @@ public class DeviceListDialog extends Dialog {
     
     
 	public DeviceListDialogStyle getDialogStyle() {
-		return mDialogStyle;
+		return dialogStyle;
 	}      
 
 }

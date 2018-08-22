@@ -2,18 +2,18 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
 // Used for maven local, in order to install the library in to the .m2 folder
-version = '2.1'
+version = '3.0'
 group = 'com.bq.robotic'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 25
+        minSdkVersion 18
+        targetSdkVersion 26
         versionCode 10
-        versionName "2.1"
+        versionName "3.0"
     }
 
     buildTypes {
@@ -22,10 +22,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    sourceSets.all {
+        java.srcDirs += "src/${name}/kotlin"
+    }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    implementation "com.android.support:appcompat-v7:26.1.0"
+    implementation "com.google.code.gson:gson:2.8.2"
 }
 
 // Use 'gradle install' in order to install the .aar in the local maven repository

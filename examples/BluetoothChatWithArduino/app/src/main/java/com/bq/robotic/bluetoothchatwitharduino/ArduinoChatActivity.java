@@ -58,14 +58,14 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
    private static final boolean D = true;
 
    // Layout Views
-   private ListView mConversationView;
-   private EditText mOutEditText;
-   private Button mSendButton;
+   private ListView conversationView;
+   private EditText outEditText;
+   private Button sendButton;
 
    // Array adapter for the chat list
-   private ArrayAdapter<String> mConversationArrayAdapter;
+   private ArrayAdapter<String> conversationArrayAdapter;
    // String buffer for outgoing messages
-   private StringBuffer mOutStringBuffer;
+   private StringBuffer outStringBuffer;
 
    private Menu menu;
 
@@ -79,17 +79,17 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
       setContentView(R.layout.activity_arduino_chat);
 
       // Initialize the array adapter for the chat list
-      mConversationArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
-      mConversationView = (ListView) findViewById(R.id.in);
-      mConversationView.setAdapter(mConversationArrayAdapter);
+      conversationArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
+      conversationView = (ListView) findViewById(R.id.in);
+      conversationView.setAdapter(conversationArrayAdapter);
 
       // Initialize the compose field with a listener for the return key
-      mOutEditText = (EditText) findViewById(R.id.edit_text_out);
-      mOutEditText.setOnEditorActionListener(mWriteListener);
+      outEditText = (EditText) findViewById(R.id.edit_text_out);
+      outEditText.setOnEditorActionListener(mWriteListener);
 
       // Initialize the send button with a listener for click events
-      mSendButton = (Button) findViewById(R.id.button_send);
-      mSendButton.setOnClickListener(new OnClickListener() {
+      sendButton = (Button) findViewById(R.id.button_send);
+      sendButton.setOnClickListener(new OnClickListener() {
          public void onClick(View v) {
             // Send a message using content of the edit text widget
             TextView view = (TextView) findViewById(R.id.edit_text_out);
@@ -97,13 +97,13 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
             sendMessage(message);
 
             // Reset out string buffer to zero and clear the edit text field
-            mOutStringBuffer.setLength(0);
-            mOutEditText.setText(mOutStringBuffer);
+            outStringBuffer.setLength(0);
+            outEditText.setText(outStringBuffer);
          }
       });
 
       // Initialize the buffer for outgoing messages
-      mOutStringBuffer = new StringBuffer("");
+      outStringBuffer = new StringBuffer("");
 
       requestPermissions();
    }
@@ -165,8 +165,8 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
    public void onConnectionStatusUpdate(int connectionState) {
       switch (connectionState) {
          case Droid2InoConstants.STATE_CONNECTED:
-            setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
-            mConversationArrayAdapter.clear();
+            setStatus(getString(R.string.title_connected_to, connectedDeviceName));
+            conversationArrayAdapter.clear();
             menu.findItem(R.id.connect_scan).setEnabled(false);
             menu.findItem(R.id.disconnect).setEnabled(true);
             break;
@@ -217,8 +217,8 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
                sendMessage(message);
 
                // Reset out string buffer to zero and clear the edit text field
-               mOutStringBuffer.setLength(0);
-               mOutEditText.setText(mOutStringBuffer);
+               outStringBuffer.setLength(0);
+               outEditText.setText(outStringBuffer);
                return true;
             }
             if (D) Log.i(LOG_TAG, "END onEditorAction");
@@ -232,7 +232,7 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
     */
    @Override
    public void onNewMessage(String message) {
-      mConversationArrayAdapter.add(mConnectedDeviceName + ":  " + message);
+      conversationArrayAdapter.add(connectedDeviceName + ":  " + message);
    }
 
 
@@ -241,7 +241,7 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
     */
    @Override
    public void onWriteSuccess(String message) {
-      mConversationArrayAdapter.add("Me:  " + message);
+      conversationArrayAdapter.add("Me:  " + message);
    }
 
    /************************************ PERMISSIONS **********************************************/

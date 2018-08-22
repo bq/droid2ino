@@ -55,13 +55,13 @@ public class BluetoothConnection {
 	private static final String LOG_TAG = "BluetoothConnection";
 
     // Member fields
-    private final BluetoothAdapter mAdapter;
-    private final Handler mHandler;
-    private AcceptThread mAcceptThread;
-    private ConnectThread mConnectThread;
-    private ConnectedThread mConnectedThread;
-    private int mState;
-    private Context mContext;
+    private final BluetoothAdapter adapter;
+    private final Handler handler;
+    private AcceptThread acceptThread;
+    private ConnectThread connectThread;
+    private ConnectedThread connectedThread;
+    private int state;
+    private Context context;
     private boolean isDuplexConnection = true;
 
     /**
@@ -70,10 +70,10 @@ public class BluetoothConnection {
      * @param handler  A Handler to send messages back to the UI Activity
      */
     public BluetoothConnection(Context context, Handler handler) {
-        mAdapter = BluetoothAdapter.getDefaultAdapter();
-        mState = Droid2InoConstants.STATE_NONE;
-        mHandler = handler;
-        mContext = context;
+        adapter = BluetoothAdapter.getDefaultAdapter();
+        state = Droid2InoConstants.STATE_NONE;
+        this.handler = handler;
+        this.context = context;
     }
 
     /**
@@ -81,16 +81,16 @@ public class BluetoothConnection {
      * @param state  An integer defining the current connection state
      */
     private synchronized void setState(int state) {
-        mState = state;
+        this.state = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(Droid2InoConstants.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        handler.obtainMessage(Droid2InoConstants.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
     /**
      * Return the current connection state. */
     public synchronized int getState() {
-        return mState;
+        return state;
     }
 
 
@@ -119,17 +119,19 @@ public class BluetoothConnection {
     public synchronized void start() {
 
         // Cancel any thread attempting to make a connection
-        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+        if (connectThread != null) {
+            connectThread.cancel(); connectThread = null;}
 
         // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+        if (connectedThread != null) {
+            connectedThread.cancel(); connectedThread = null;}
 
         setState(Droid2InoConstants.STATE_LISTEN);
 
         // Start the thread to listen on a BluetoothServerSocket
-        if (mAcceptThread == null) {
-        	mAcceptThread = new AcceptThread();
-        	mAcceptThread.start();
+        if (acceptThread == null) {
+        	acceptThread = new AcceptThread();
+        	acceptThread.start();
         }
     }
 
@@ -140,16 +142,18 @@ public class BluetoothConnection {
     public synchronized void connect(BluetoothDevice device) {
 
         // Cancel any thread attempting to make a connection
-        if (mState == Droid2InoConstants.STATE_CONNECTING) {
-            if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+        if (state == Droid2InoConstants.STATE_CONNECTING) {
+            if (connectThread != null) {
+                connectThread.cancel(); connectThread = null;}
         }
 
         // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+        if (connectedThread != null) {
+            connectedThread.cancel(); connectedThread = null;}
 
         // Start the thread to connect with the given device
-        mConnectThread = new ConnectThread(device);
-        mConnectThread.start();
+        connectThread = new ConnectThread(device);
+        connectThread.start();
         setState(Droid2InoConstants.STATE_CONNECTING);
     }
 
@@ -162,27 +166,29 @@ public class BluetoothConnection {
             device) {
 
         // Cancel the thread that completed the connection
-        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
+        if (connectThread != null) {
+            connectThread.cancel(); connectThread = null;}
 
         // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+        if (connectedThread != null) {
+            connectedThread.cancel(); connectedThread = null;}
 
         // Cancel the accept thread because we only want to connect to one device
-        if (mAcceptThread != null) {
-        	mAcceptThread.cancel();
-        	mAcceptThread = null;
+        if (acceptThread != null) {
+        	acceptThread.cancel();
+        	acceptThread = null;
         }
 
         // Start the thread to manage the connection and perform transmissions
-        mConnectedThread = new ConnectedThread(socket);
-        mConnectedThread.start();
+        connectedThread = new ConnectedThread(socket);
+        connectedThread.start();
 
         // Send the name of the connected device back to the UI Activity
-        Message msg = mHandler.obtainMessage(Droid2InoConstants.MESSAGE_DEVICE_NAME);
+        Message msg = handler.obtainMessage(Droid2InoConstants.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
         bundle.putString(Droid2InoConstants.DEVICE_NAME, device.getName());
         msg.setData(bundle);
-        mHandler.sendMessage(msg);
+        handler.sendMessage(msg);
 
         setState(Droid2InoConstants.STATE_CONNECTED);
     }
@@ -192,19 +198,19 @@ public class BluetoothConnection {
      */
     public synchronized void stop() {
 
-        if (mConnectThread != null) {
-            mConnectThread.cancel();
-            mConnectThread = null;
+        if (connectThread != null) {
+            connectThread.cancel();
+            connectThread = null;
         }
 
-        if (mConnectedThread != null) {
-            mConnectedThread.cancel();
-            mConnectedThread = null;
+        if (connectedThread != null) {
+            connectedThread.cancel();
+            connectedThread = null;
         }
 
-        if (mAcceptThread != null) {
-        	mAcceptThread.cancel();
-        	mAcceptThread = null;
+        if (acceptThread != null) {
+        	acceptThread.cancel();
+        	acceptThread = null;
         }
 
         setState(Droid2InoConstants.STATE_NONE);
@@ -220,8 +226,8 @@ public class BluetoothConnection {
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
-            if (mState != Droid2InoConstants.STATE_CONNECTED) return;
-            r = mConnectedThread;
+            if (state != Droid2InoConstants.STATE_CONNECTED) return;
+            r = connectedThread;
         }
         // Perform the write unsynchronized
         r.write(out);
@@ -233,8 +239,8 @@ public class BluetoothConnection {
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
-            if (mState != Droid2InoConstants.STATE_CONNECTED) return null;
-            r = mConnectedThread;
+            if (state != Droid2InoConstants.STATE_CONNECTED) return null;
+            r = connectedThread;
         }
         // Perform the write unsynchronized
         return r.getMmOutStream();
@@ -246,8 +252,8 @@ public class BluetoothConnection {
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
-            if (mState != Droid2InoConstants.STATE_CONNECTED) return null;
-            r = mConnectedThread;
+            if (state != Droid2InoConstants.STATE_CONNECTED) return null;
+            r = connectedThread;
         }
         // Perform the write unsynchronized
         return r.getMmInStream();
@@ -259,11 +265,11 @@ public class BluetoothConnection {
      */
     private void connectionFailed() {
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(Droid2InoConstants.MESSAGE_TOAST);
+        Message msg = handler.obtainMessage(Droid2InoConstants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(Droid2InoConstants.TOAST, mContext.getString(R.string.connecting_bluetooth_error));
+        bundle.putString(Droid2InoConstants.TOAST, context.getString(R.string.connecting_bluetooth_error));
         msg.setData(bundle);
-        mHandler.sendMessage(msg);
+        handler.sendMessage(msg);
 
         // Start the service over to restart listening mode
         BluetoothConnection.this.start();
@@ -274,13 +280,13 @@ public class BluetoothConnection {
      */
     private void connectionLost() {
         // Send a failure message back to the Activity
-        Message msg = mHandler.obtainMessage(Droid2InoConstants.MESSAGE_TOAST);
+        Message msg = handler.obtainMessage(Droid2InoConstants.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(Droid2InoConstants.TOAST, mContext.getString(R.string.connection_lost_error));
+        bundle.putString(Droid2InoConstants.TOAST, context.getString(R.string.connection_lost_error));
         msg.setData(bundle);
-        mHandler.sendMessage(msg);
+        handler.sendMessage(msg);
 
-        mState = Droid2InoConstants.STATE_NONE;
+        state = Droid2InoConstants.STATE_NONE;
 
         // Start the service over to restart listening mode
         BluetoothConnection.this.start();
@@ -300,13 +306,13 @@ public class BluetoothConnection {
 
             // Create a new listening server socket
             try {
-                tmp = mAdapter.listenUsingRfcommWithServiceRecord(Droid2InoConstants.SOCKET_NAME,
+                tmp = adapter.listenUsingRfcommWithServiceRecord(Droid2InoConstants.SOCKET_NAME,
                 		Droid2InoConstants.MY_UUID);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Socket listen() failed", e);
             }
             mmServerSocket = tmp;
-            mState = Droid2InoConstants.STATE_LISTEN;
+            state = Droid2InoConstants.STATE_LISTEN;
         }
 
         public void run() {
@@ -321,7 +327,7 @@ public class BluetoothConnection {
             }
 
             // Listen to the server socket if we're not connected
-            while (mState != Droid2InoConstants.STATE_CONNECTED) {
+            while (state != Droid2InoConstants.STATE_CONNECTED) {
                 try {
                     // This is a blocking call and will only return on a
                     // successful connection or an exception
@@ -338,7 +344,7 @@ public class BluetoothConnection {
                 // If a connection was accepted
                 if (socket != null) {
                     synchronized (BluetoothConnection.this) {
-                        switch (mState) {
+                        switch (state) {
                         case Droid2InoConstants.STATE_LISTEN:
                         case Droid2InoConstants.STATE_CONNECTING:
                             // Situation normal. Start the connected thread.
@@ -394,15 +400,15 @@ public class BluetoothConnection {
                 Log.e(LOG_TAG, "Socket create() failed", e);
             }
             mmSocket = tmp;
-            mState = Droid2InoConstants.STATE_CONNECTING;
+            state = Droid2InoConstants.STATE_CONNECTING;
         }
 
         public void run() {
-            Log.i(LOG_TAG, "BEGIN mConnectThread");
+            Log.i(LOG_TAG, "BEGIN connectThread");
             setName(Droid2InoConstants.CONNECT_THREAD_NAME);
 
             // Always cancel discovery because it will slow down a connection
-            mAdapter.cancelDiscovery();
+            adapter.cancelDiscovery();
 
             //FIXME:
             if(mmSocket == null) {
@@ -429,7 +435,7 @@ public class BluetoothConnection {
 
             // Reset the ConnectThread because we're done
             synchronized (BluetoothConnection.this) {
-                mConnectThread = null;
+                connectThread = null;
             }
 
             // Start the connected thread
@@ -472,11 +478,11 @@ public class BluetoothConnection {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
-            mState = Droid2InoConstants.STATE_CONNECTED;
+            state = Droid2InoConstants.STATE_CONNECTED;
         }
 
         public void run() {
-            Log.i(LOG_TAG, "BEGIN mConnectedThread");
+            Log.i(LOG_TAG, "BEGIN connectedThread");
             byte[] buffer = new byte[1024];
             int bytes;
             int startIndex = -1;
@@ -484,7 +490,7 @@ public class BluetoothConnection {
             String message;
 
             // Keep listening to the InputStream while connected
-            while (isDuplexConnection && mState == Droid2InoConstants.STATE_CONNECTED) {
+            while (isDuplexConnection && state == Droid2InoConstants.STATE_CONNECTED) {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
@@ -506,7 +512,7 @@ public class BluetoothConnection {
                     	message = readMessage.substring(startIndex+2, endIndex);
                     	
                         // Send the obtained message to the UI Activity
-                        mHandler.obtainMessage(Droid2InoConstants.MESSAGE_READ, bytes, -1, message)
+                        handler.obtainMessage(Droid2InoConstants.MESSAGE_READ, bytes, -1, message)
                                 .sendToTarget();
                         
                         // Delete from the first character to delete possible broken messages and not add with the next message
@@ -536,7 +542,7 @@ public class BluetoothConnection {
                 mmOutStream.write(buffer);
 
                 // Share the sent message back to the UI Activity
-                mHandler.obtainMessage(Droid2InoConstants.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
+                handler.obtainMessage(Droid2InoConstants.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Exception during write", e);
             }

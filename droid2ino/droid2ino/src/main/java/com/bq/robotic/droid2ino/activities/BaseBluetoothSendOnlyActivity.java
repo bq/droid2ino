@@ -25,7 +25,6 @@ package com.bq.robotic.droid2ino.activities;
 
 public abstract class BaseBluetoothSendOnlyActivity extends BaseBluetoothConnectionActivity {
 	
-	
     /**
      * Callback method invoked when the device receives a message from the Arduino
      * through the bluetooth connection
@@ -44,7 +43,7 @@ public abstract class BaseBluetoothSendOnlyActivity extends BaseBluetoothConnect
     protected void setupSession() {
         super.setupSession();
 
-        mBluetoothConnection.setDuplexConnection(false);
+        bluetoothConnection.setDuplexConnection(false);
 
     }
 
