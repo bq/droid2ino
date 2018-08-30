@@ -24,26 +24,23 @@
 package com.bq.robotic.droid2ino.activities;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.bq.robotic.droid2ino.BluetoothConnection;
-import com.bq.robotic.droid2ino.DeviceListDialog;
-import com.bq.robotic.droid2ino.DialogListener;
+import com.bq.robotic.droid2ino.communication.BluetoothManager;
+import com.bq.robotic.droid2ino.communication.ble.BleProfile;
+import com.bq.robotic.droid2ino.views.BtDevicesListDialog;
+import com.bq.robotic.droid2ino.views.DevicesListDialogStyle;
 import com.bq.robotic.droid2ino.R;
-import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
+import com.bq.robotic.droid2ino.communication.BtCommunicationListener;
+import com.bq.robotic.droid2ino.communication.BtCommunicationListenerAdapter;
 import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity {
 
@@ -52,525 +49,471 @@ public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity 
     * It provides helper methods that can be used to find and connect devices.
     */
 
-   private static final String LOG_TAG = "BaseConnectActivity";
+   private static final String LOG_TAG = BaseBluetoothConnectionActivity.class.getSimpleName();
 
-   // Name of the connected device
+   /**
+    * Name of the connected device.
+    */
    protected String connectedDeviceName = null;
-   // String buffer for outgoing messages
-//	protected StringBuffer mOutStringBuffer;
-   // Local Bluetooth adapter
-   protected BluetoothAdapter bluetoothAdapter = null;
-   // Member object for the BT connect services
-   protected BluetoothConnection bluetoothConnection = null;
-
-   // The user accepted to use the Bluetooth with the app
-   protected boolean wasEnableBluetoothAllowed = false;
-
-   // The user requested the list of the bluetooth devices available
+   /**
+    * The user requested the list of the bluetooth devices available.
+    */
    protected boolean deviceConnectionWasRequested = false;
+   // Used for not trying to show the BT dialog fragment when the app is in background as it can crash
+   private boolean isAppInBackground = true;
 
-   // Store the state of the Bluetooth before this app was executed in order to leave it as it was
-   private boolean wasBluetoothEnabled = false;
+   private BluetoothManager bluetoothManager;
+   private BtDevicesListDialog btDevicesListDialog;
+   private static final String DEVICE_DIALOG_FRAGMENT_TAG = "deviceDialog";
 
-   private BroadcastReceiver bluetoothDisconnectReceiver;
-   private IntentFilter disconnectBluetoothFilter;
+   private BtDevicesListDialog.DialogListener dialogListener = new BtDevicesListDialog.DialogListener() {
+      @Override public void onBtDeviceSelected(@NotNull final String btDeviceAddress) {
+         Log.d(LOG_TAG, "BT device selected from list");
+         btDevicesListDialog = null;
+         bluetoothManager.connectDevice(btDeviceAddress);
+      }
 
-   // Used while trying to write into the bluetooth connection. This is needed in order to avoid an
-   // ANR exception in slow bluetooth connections, or when the connection is going to be lost in
-   // some old devices
-   private Handler sendHandler;
+      @Override public void onCancel() {
+         Log.d(LOG_TAG, "BT devices list dialog was cancelled");
+         btDevicesListDialog = null;
+      }
 
+      @Override
+      public void onDevicesListDialogStyleCreated(DevicesListDialogStyle deviceListDialogStyle) {
+         onDeviceListDialogStyleObtained(deviceListDialogStyle);
+      }
+
+      @Override
+      public void onBtTypeSelectedChanged(@NotNull BluetoothManager.BtConnectionType selectedBtType) {
+         selectBtConnectionType(selectedBtType);
+      }
+   };
 
    @Override
    public void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
 
-      // Get local Bluetooth adapter
-      bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-      // If the adapter is null, then Bluetooth is not supported
-      if (bluetoothAdapter == null) {
-         //Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
-         return;
-      }
+      bluetoothManager = new BluetoothManager(this);
 
       if (savedInstanceState != null) {
-         wasEnableBluetoothAllowed = savedInstanceState.getBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY);
+         bluetoothManager.onEnableBluetoothIsAllowed(savedInstanceState
+            .getBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY));
       }
 
-      if (bluetoothAdapter.isEnabled()) {
-         wasBluetoothEnabled = true;
+      bluetoothManager.onCreate(this);
+      bluetoothManager.setBtCommunicationListener(new BtCommunicationListenerAdapter() {
+         @Override public void onBluetoothAdapterWasEnabled() {
+            // If the user requested the list of the bluetooth devices available, show it
+            if (deviceConnectionWasRequested) {
+               showListDialog();
+            }
+         }
 
-      }
+         @Override
+         public void onConnectionStatusUpdated(@NotNull Droid2InoConstants.ConnectionState connectionState) {
+            BaseBluetoothConnectionActivity.this.onConnectionStatusUpdated(connectionState);
+         }
 
-      bluetoothDisconnectReceiver = new DisconnectBluetoothBroadcastReceiver();
-      disconnectBluetoothFilter = new IntentFilter("android.bluetooth.device.action.ACL_DISCONNECTED");
+         @Override public void onMessageSent(@NotNull String message) {
+            BaseBluetoothConnectionActivity.this.onMessageSent(message);
+         }
 
-      // Create the send handler
-      if (sendHandler == null) {
-         sendHandler = createHandler("sendHandler");
-      }
+         @Override public void onMessageReceived(@NotNull String message) {
+            BaseBluetoothConnectionActivity.this.onMessageReceived(message);
+         }
 
-//        else {
-//            enableBluetooth();
-//        }
+         @Override public void onDeviceNameObtained(@NotNull String deviceName) {
+            BaseBluetoothConnectionActivity.this.onDeviceNameObtained(deviceName);
+         }
+
+         @Override
+         public void onPreConnectionChangesTo(@NotNull BluetoothManager.BtConnectionType connectionTypeChangedTo) {
+            BaseBluetoothConnectionActivity.this.onPreConnectionChangesTo(connectionTypeChangedTo);
+         }
+
+         @Override public void onError(@Nullable String errorMessage,
+                                       @Nullable Droid2InoConstants.ConnectionState errorState,
+                                       @Nullable Exception e) {
+            BaseBluetoothConnectionActivity.this.onError(errorMessage, errorState, e);
+         }
+      });
+
+      setupSession();
    }
 
    @Override
    protected void onResume() {
       super.onResume();
-
-      // If the adapter is null, then Bluetooth is not supported
-      if (bluetoothAdapter == null) {
-         Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
-         return;
-      }
-
-      // register the Bluetooth disconnect receiver
-      registerReceiver(bluetoothDisconnectReceiver, disconnectBluetoothFilter);
-
-      // If BT is not on, request that it be enabled.
-      // setupSession() will then be called during onActivityResult
-      if (!bluetoothAdapter.isEnabled() && wasEnableBluetoothAllowed) {
-         bluetoothAdapter.enable();
-         setupSession();
-
-      } else { // Otherwise, setup BT connection
-         if (bluetoothConnection == null)
-            setupSession();
-      }
-
+      Log.v(LOG_TAG, "onResume");
+      bluetoothManager.onResume();
    }
 
+   @Override protected void onResumeFragments() {
+      super.onResumeFragments();
+
+      // Don't let the user show the fragment until the activity state is recover, if not, the app can crash
+      isAppInBackground = false;
+      // If the user requested the list of the bluetooth devices available, show it
+      if (deviceConnectionWasRequested) {
+         showListDialog();
+      }
+   }
 
    @Override
    protected void onPause() {
       super.onPause();
-
-      // If the adapter is null, then Bluetooth is not supported
-      if (bluetoothAdapter != null) {
-         // Unregister the bluetooth disconnect receiver
-         unregisterReceiver(bluetoothDisconnectReceiver);
-      }
-
-   }
-
-
-   @Override
-   protected void onStop() {
-      super.onStop();
-
-      // If the adapter is null, then Bluetooth is not supported
-      if (bluetoothAdapter == null) {
-         return;
-      }
-
-      stopApp();
+      Log.v(LOG_TAG, "onPause");
+      isAppInBackground = true;
+      bluetoothManager.onPause();
+      btDevicesListDialog = null;
    }
 
    @Override protected void onDestroy() {
       super.onDestroy();
-
-      // Quit the send handler and it looper
-      sendHandler.removeCallbacksAndMessages(null);
-      sendHandler.getLooper().quit();
+      Log.v(LOG_TAG, "onDestroy");
+      bluetoothManager.onDestroy();
    }
 
    @Override
    public void onSaveInstanceState(Bundle savedInstanceState) {
       super.onSaveInstanceState(savedInstanceState);
+      Log.v(LOG_TAG, "onSaveInstanceState");
       // Save UI state changes to the savedInstanceState.
       // This bundle will be passed to onCreate if the process is
       // killed and restarted.
-      savedInstanceState.putBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY, wasEnableBluetoothAllowed);
+      savedInstanceState.putBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY,
+         bluetoothManager.isEnableBluetoothAllowed());
    }
-
 
    @Override
    public void onRestoreInstanceState(Bundle savedInstanceState) {
       super.onRestoreInstanceState(savedInstanceState);
+      Log.v(LOG_TAG, "onRestoreInstanceState");
       // Restore UI state from the savedInstanceState.
       // This bundle has also been passed to onCreate.
-      wasEnableBluetoothAllowed = savedInstanceState.getBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY);
+      bluetoothManager.onEnableBluetoothIsAllowed(savedInstanceState
+         .getBoolean(Droid2InoConstants.WAS_BLUETOOTH_ALLOWED_KEY));
    }
-
-
-   private Handler createHandler(String name) {
-      HandlerThread handlerThread = new HandlerThread(name);
-      handlerThread.start();
-      return new Handler(handlerThread.getLooper());
-   }
-
 
    /**
-    * This method stops all threads of the BluetoothConnection and disable the Bluetooth in the
-    * mobile device if it was disabled before this app
-    * This is protected in case that a child wants to close when the user press a button or other view
-    */
-   protected void stopApp() {
-
-      stopBluetoothConnection();
-
-      // Disable the Bluetooth if it was disable before executing this app
-      if (bluetoothAdapter.isEnabled() && !wasBluetoothEnabled) {
-         bluetoothAdapter.disable();
-      }
-   }
-
-
-   /**
-    * this method provides to the child classes a way to stop te bluetooth connection
-    */
-   protected void stopBluetoothConnection() {
-      // Stop the Bluetooth connect services
-      if (bluetoothConnection != null) bluetoothConnection.stop();
-   }
-
-
-   /**
-    * Enable the Bluetooth of the device
-    */
-   protected void enableBluetooth() {
-      if (wasEnableBluetoothAllowed) {
-         bluetoothAdapter.enable();
-         setupSession();
-      } else {
-         Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-         startActivityForResult(enableIntent, Droid2InoConstants.REQUEST_ENABLE_BT);
-      }
-   }
-
-
-   /**
-    * create a new bluetooth connection
+    * This method will be called at the end of onCreate(), overwrite it in order to select another
+    * connection type or other configurations. The type of connection can be changed after using
+    * {@link BaseBluetoothConnectionActivity#selectBtConnectionType(BluetoothManager.BtConnectionType)}
+    * {@link BluetoothManager.BtConnectionType#BT_SOCKET} is selected by default with a DUPLEX connection.
+    * Here we can configure the future BT socket and BLE connections without starting either of them.
+    * This is useful for when the user changes between both types in the {@link BtDevicesListDialog}
+    * but we want to maintain the configuration of being simplex or duplex or the BLE profile between
+    * those changes. In any case, we can change it when the
+    * {@link BtCommunicationListener#onPreConnectionChangesTo(BluetoothManager.BtConnectionType)}
+    * is called.
     */
    protected void setupSession() {
-
-      // Initialize the BluetoothConnectService to perform bluetooth connections
-      bluetoothConnection = new BluetoothConnection(this, mHandler);
-
+      configureBtSocketConnectionType(true);
    }
-
-
-   /**
-    * Helper method to start discovering devices.
-    */
-   protected void ensureDiscoverable() {
-      if (bluetoothAdapter.getScanMode() !=
-         BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-         startActivity(discoverableIntent);
-      }
-   }
-
-   /**
-    * Sends a message.
-    *
-    * @param message A string of text to send.
-    */
-   protected void sendMessage(final String message) {
-      // Check that we're actually connected before trying anything
-      if (!isConnected()) {
-         return;
-      }
-
-      // Check that there's actually something to send
-      if (message.length() > 0) {
-         // Get the message bytes and tell the BluetoothConnectService to write
-         final byte[] send = message.getBytes();
-
-         sendHandler.post(new Runnable() {
-            @Override public void run() {
-               bluetoothConnection.write(send);
-            }
-         });
-
-         // Reset out string buffer to zero and clear the edit text field
-//			mOutStringBuffer.setLength(0);
-      }
-   }
-
-
-   /**
-    * Sends a message.
-    *
-    * @param messageBuffer A string of text to send.
-    */
-   protected void sendMessage(byte[] messageBuffer) {
-      // Check that we're actually connected before trying anything
-      if (!isConnected()) {
-         return;
-      }
-
-      // Check that there's actually something to send
-      if (messageBuffer.length > 0) {
-         bluetoothConnection.write(messageBuffer);
-
-      }
-   }
-
-
-   /**
-    * Checks if the mobile device is connected to another device
-    *
-    * @return
-    */
-   protected boolean isConnected() {
-      if (bluetoothAdapter == null || bluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
-         runOnUiThread(new Runnable() {
-            @Override public void run() {
-               Toast.makeText(BaseBluetoothConnectionActivity.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
-            }
-         });
-
-         return false;
-      } else {
-         return true;
-      }
-   }
-
-
-   /**
-    * Checks if the mobile device is connected to another device
-    *
-    * @return
-    */
-   protected boolean isConnectedWithoutToast() {
-      if (bluetoothAdapter == null || bluetoothConnection == null || bluetoothConnection.getState() != Droid2InoConstants.STATE_CONNECTED) {
-         return false;
-      } else {
-         return true;
-      }
-   }
-
-
-   /**
-    * Helper to launch {@link DeviceListDialog}
-    *
-    * @param listener
-    */
-   private DeviceListDialog deviceListDialog(DialogListener listener) {
-      DeviceListDialog deviceDialog = new DeviceListDialog(this, listener);
-      deviceDialog.show();
-
-      return deviceDialog;
-   }
-
-
-   /**
-    * Launch the {@link DeviceListDialog} to see devices and do scan
-    */
-   protected void requestDeviceConnection() {
-
-      // If the adapter is null, then Bluetooth is not supported
-      if (bluetoothAdapter == null) {
-         Toast.makeText(this, R.string.bluetooth_not_available, Toast.LENGTH_LONG).show();
-         return;
-      }
-
-      if (bluetoothAdapter.isEnabled()) {
-         DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
-            public void onComplete(Bundle values) {
-               connectDevice(values);
-            }
-
-            public void onCancel() {
-            }
-         });
-         onDeviceListDialogStyleObtained(deviceDialog.getDialogStyle());
-
-      } else {
-         deviceConnectionWasRequested = true;
-         enableBluetooth();
-      }
-   }
-
-
-   /**
-    * Shows the Bluetooth devices available list to the user, when the user requested it
-    * but the Bluetooth wasn't enable, and the list must wait to the Bluetooth being enable
-    * for showing it
-    */
-   private void showListDialog() {
-      if (bluetoothAdapter.isEnabled()) {
-         DeviceListDialog deviceDialog = deviceListDialog(new DialogListener() {
-            public void onComplete(Bundle values) {
-               connectDevice(values);
-            }
-
-            public void onCancel() {
-            }
-         });
-
-         onDeviceListDialogStyleObtained(deviceDialog.getDialogStyle());
-         deviceConnectionWasRequested = false;
-
-      } else {
-         deviceConnectionWasRequested = false;
-      }
-   }
-
-
-   /**
-    * Style the lists with the bluetooth devices
-    *
-    * @return the styling class for the lists with the devices
-    */
-   protected void onDeviceListDialogStyleObtained(DeviceListDialogStyle deviceListDialogStyle) {
-      // By default, do nothing
-   }
-
-
-   private void connectDevice(Bundle values) {
-      // Get the device MAC address
-      String address = values.getString(Droid2InoConstants.EXTRA_DEVICE_ADDRESS);
-      // Get the BluetoothDevice object
-      BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
-      // Attempt to connect to the device
-      bluetoothConnection.connect(device);
-   }
-
-   private void connectDevice(Intent data) {
-      // Get the device MAC address
-      String address = data.getExtras().getString(Droid2InoConstants.EXTRA_DEVICE_ADDRESS);
-      // Get the BluetoothDevice object
-      BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
-      // Attempt to connect to the device
-      bluetoothConnection.connect(device);
-   }
-
-   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-      switch (requestCode) {
-         case Droid2InoConstants.REQUEST_CONNECT_DEVICE:
-            // When DeviceListActivity returns with a device to connect
-            if (resultCode == Activity.RESULT_OK) {
-               connectDevice(data);
-            }
-            break;
-
-         case Droid2InoConstants.REQUEST_ENABLE_BT:
-            // When the request to enable Bluetooth returns
-            if (resultCode == Activity.RESULT_OK) {
-               // User accepted to enable the bluetooth
-               wasEnableBluetoothAllowed = true;
-
-               // Bluetooth is now enabled, so set up a session
-               setupSession();
-
-               // If the user requested the list of the bluetooth devices available, show it
-               if (deviceConnectionWasRequested) {
-                  showListDialog();
-               }
-
-            } else {
-               // User did not enable Bluetooth or an error occurred
-               Log.d(LOG_TAG, "BT not enabled");
-               wasEnableBluetoothAllowed = false;
-
-               Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
-
-               // If the user requested the list of the bluetooth devices available, show it
-               if (deviceConnectionWasRequested) {
-                  showListDialog();
-               }
-            }
-      }
-   }
-
-   // The Handler that gets information back from the BluetoothConnectService
-   private final Handler mHandler = new Handler() {
-      @Override
-      public void handleMessage(Message msg) {
-         switch (msg.what) {
-            case Droid2InoConstants.MESSAGE_STATE_CHANGE:
-               switch (msg.arg1) {
-                  case Droid2InoConstants.STATE_CONNECTED:
-                  case Droid2InoConstants.STATE_CONNECTING:
-                  case Droid2InoConstants.STATE_LISTEN:
-                  case Droid2InoConstants.STATE_NONE:
-                     onConnectionStatusUpdate(msg.arg1);
-                     break;
-               }
-               break;
-
-            case Droid2InoConstants.MESSAGE_WRITE:
-               byte[] writeBuf = (byte[]) msg.obj;
-               // construct a string from the buffer
-               String writeMessage = new String(writeBuf);
-               onWriteSuccess(writeMessage);
-               break;
-
-            case Droid2InoConstants.MESSAGE_READ:
-               // construct a string from the valid bytes in the buffer
-               String readMessage = (String) msg.obj;
-               onNewMessage(readMessage);
-               break;
-
-            case Droid2InoConstants.MESSAGE_DEVICE_NAME:
-               // save the connected device's name
-               connectedDeviceName = msg.getData().getString(Droid2InoConstants.DEVICE_NAME);
-               Toast.makeText(getApplicationContext(), getString(R.string.connected_to) +
-                  connectedDeviceName, Toast.LENGTH_SHORT).show();
-               break;
-
-            case Droid2InoConstants.MESSAGE_TOAST:
-               Toast.makeText(getApplicationContext(),
-                  msg.getData().getString(Droid2InoConstants.TOAST), Toast.LENGTH_SHORT).show();
-               break;
-         }
-      }
-   };
 
    /**
     * Callback that will be invoked when Bluetooth connectivity state changes
     *
     * @param connectionState Message types sent from the BluetoothConnectService Handler
     */
-   public void onConnectionStatusUpdate(int connectionState) {
+   protected void onConnectionStatusUpdated(Droid2InoConstants.ConnectionState connectionState) {
       Log.d(LOG_TAG, "Connectivity changed  : " + connectionState);
    }
 
    /**
-    * Callback that will be called after message was sent successfully.
+    * Callback that will be invoked after message was sent successfully.
     *
     * @param message data that was sent to remote device
     */
-   public void onWriteSuccess(String message) {
-      Log.d(LOG_TAG, "Response message : " + message);
+   protected void onMessageSent(String message) {
+      Log.d(LOG_TAG, "Message sent: " + message);
    }
 
    /**
-    * Callback that will be invoked when new message is received
+    * Callback that will be invoked when new message is received.
     *
     * @param message new message string
     */
-   public abstract void onNewMessage(String message);
+   protected void onMessageReceived(String message) {
+      Log.d(LOG_TAG, "Message Received: " + message);
+   }
 
+   /**
+    * Callback that will be invoked when we obtain the name of the device to which we are connected to.
+    */
+   protected void onDeviceNameObtained(String deviceName) {
+      connectedDeviceName = deviceName;
+      Toast.makeText(getApplicationContext(), getString(R.string.connected_to) + connectedDeviceName,
+         Toast.LENGTH_SHORT).show();
+   }
 
-   /***********************************************************************************************
+   /**
+    * Callback called when the connection type is going to be changed, so if another extra configuration
+    * over that connection has to be set, such as setting as simplex or a custom BLE profile.
+    */
+   protected void onPreConnectionChangesTo(BluetoothManager.BtConnectionType connectionTypeChangedTo) {
+      Log.d(LOG_TAG, "Connection is going to be changed to: " + connectionTypeChangedTo);
+   }
+
+   /**
+    * Callback that will be invoked when an error appears.
+    */
+   protected void onError(String errorMessage, Droid2InoConstants.ConnectionState errorState,
+               Exception e) {
+      Log.d(LOG_TAG, "Error: " + errorMessage + " with error state: " + errorState);
+      if (e != null) Log.d(LOG_TAG, "Trace: " + e);
+   }
+
+   /**
+    * Stops the current bluetooth connection but doesn't disable the BT adapter as the
+    * {@link BaseBluetoothConnectionActivity#stopApp()} method does.
+    */
+   protected final void stopBluetoothConnection() {
+      bluetoothManager.stopBluetoothConnection();
+   }
+
+   /**
+    * This method stops all threads of the BluetoothConnection and disable the Bluetooth in the
+    * mobile device if it was disabled before this app
+    * This is protected in case that a child wants to close when the user press a button or other view
+    */
+   protected final void stopApp() {
+      bluetoothManager.fullStop();
+   }
+
+   /**
+    * Selects a new connection type (BT socket, BLE...) by closing the before connection type and
+    * opening a new one of the required type. This method will use default configure values for the
+    * connection types or the ones previously configured.
+    * {@link BluetoothManager.BtConnectionType#BT_SOCKET} is selected by default with a duplex
+    * connection. If you want to use non default configuration values for the bt socket or ble call
+    * to {@link BaseBluetoothConnectionActivity#configureBtSocketConnectionType(boolean)} or
+    * {@link BaseBluetoothConnectionActivity#configureBleConnectionType(BleProfile)} and then just
+    * call to this method in consecutive changes between types.
+    * Also, instead of calling this method, a connection type can be selected and configured by calling
+    * to {@link BaseBluetoothConnectionActivity#selectBtSocketConnectionType(boolean)} or
+    * {@link BaseBluetoothConnectionActivity#selectBleConnectionType(BleProfile)}.
     *
-    * This is the bluetooth disconnect broadcast receiver. When a device is disconnected, this
-    * class is triggered and stops the connected thread. This is an inner class in order to call
-    * easier the stop() method of the BluetoothConnection object. Furthermore, the app disable
-    * the Bluetooth when is not visible, so it has no sense to have this in the manifest and be
-    * called always, because the connection is already closed in that cases.
+    * Take into account that when selecting a type of connection in the {@link BtDevicesListDialog},
+    * it will call to this method, so please configure the connection types before that or when the
+    * {@link BtCommunicationListener#onPreConnectionChangesTo(BluetoothManager.BtConnectionType)}
+    * callback in invoked.
+    */
+   protected final void selectBtConnectionType(BluetoothManager.BtConnectionType connectionType) {
+      if (connectionType == null || connectionType == bluetoothManager.getBtConnectionType()) return;
+
+      if (connectionType == BluetoothManager.BtConnectionType.BLE)
+         bluetoothManager.selectBleConnectionType();
+      else
+         bluetoothManager.selectBtSocketConnectionType();
+
+      if (btDevicesListDialog != null && btDevicesListDialog.isVisible()) {
+         btDevicesListDialog.selectBtScannerType(this, bluetoothManager.getBtConnectionType());
+      }
+   }
+
+   /**
+    * Select {@link BluetoothManager.BtConnectionType#BT_SOCKET} as the connection type to use.
+    * A simplex connection can be set by passing false as parameter if reading anything from the
+    * connected device isn't needed.
     *
-    **********************************************************************************************/
+    * @param isDuplex   True if a duplex connection is required, false if a simplex connection is required
+    */
+   protected final void selectBtSocketConnectionType(boolean isDuplex) {
+      bluetoothManager.selectBtSocketConnectionType(isDuplex);
+   }
 
-   public class DisconnectBluetoothBroadcastReceiver extends BroadcastReceiver {
+   /**
+    * Configure a future possible BT socket connection to be duplex or simplex. This doesn't select,
+    * start or prepare that connection if it isn't has started, just configure it for a future connection.
+    * This method is also useful to be called when a configuration is required after changed to a connection
+    * type. If there is an ongoing BT socket connection it would change it to a DUPLEX or SIMPLEX one.
+    * See [{@link BtCommunicationListener#onPreConnectionChangesTo(BluetoothManager.BtConnectionType)}].
+    *
+    * @param isBtSocketTypeDuplex   True to configure a future BT socket connection to be duplex
+    */
+   protected final void configureBtSocketConnectionType(boolean isBtSocketTypeDuplex) {
+      bluetoothManager.configureBtSocketConnectionType(isBtSocketTypeDuplex);
+   }
 
-      @Override
-      public void onReceive(Context context, Intent intent) {
-         String action = intent.getAction();
-//            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+   /**
+    * Configure a future possible BLE connection to use a custom {@link BleProfile}.
+    * This doesn't start or prepare that connection if it isn't has started, just configure it for
+    * a future connection. If there is an ongoing BLE connection, it will be stopped.
+    * This method is also useful to be called when a configuration is required after changed to a
+    * connection type.
+    * See [{@link BtCommunicationListener#onPreConnectionChangesTo(BluetoothManager.BtConnectionType)}].
+    *
+    * @param bleProfile   The {@link BleProfile} to use in a future BLE connection
+    */
+   protected final void configureBleConnectionType(BleProfile bleProfile) {
+      bluetoothManager.configureBleConnectionType(bleProfile);
+   }
 
-         if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-            Log.i(LOG_TAG, "The connection was lost. The Bluetooth device was disconnected.");
-            bluetoothConnection.stop();
-         }
+   /**
+    * Select {@link BluetoothManager.BtConnectionType#BT_SOCKET} as the connection type to use.
+    * A {@link BleProfile} can be passed to be used with this connection. The {@link BleProfile}
+    * contains the UUIDs for the services and characteristic we want to read in the connected device.
+    * The default profile is the {@link com.bq.robotic.droid2ino.communication.ble.BqZumCoreProfile}
+    * used to communicate with the BqZum Core boards.
+    *
+    * @param bleProfile A BleProfile to use in this BLE connection
+    */
+   protected final void selectBleConnectionType(BleProfile bleProfile) {
+      bluetoothManager.selectBleConnectionType(bleProfile);
+   }
 
+   /**
+    * Obtain the current {@link BluetoothManager.BtConnectionType}.
+    *
+    * @return  The current {@link BluetoothManager.BtConnectionType}
+    */
+   protected final BluetoothManager.BtConnectionType getConnectionType() {
+      return bluetoothManager.getBtConnectionType();
+   }
+
+   /**
+    * Method that should be called when the user allows or forbids the app to enable the bluetooth,
+    * so the app enables it when it's necessary.
+    *
+    * @param allowed True if the allows the app to enable the bluetooth, false if is forbidden
+    */
+   protected final void onEnableBluetoothAllowed(boolean allowed) {
+      bluetoothManager.onEnableBluetoothIsAllowed(allowed);
+   }
+
+   /**
+    * Method that checks if the user has allowed the app to enable the bluetooth.
+    *
+    * @return  True is the user has allowed the app to enable the bluetooth
+    */
+   protected final boolean isEnableBluetoothAllowed() {
+      return bluetoothManager.isEnableBluetoothAllowed();
+   }
+
+   /**
+    * Sends a message to the connected device if any.
+    *
+    * @param message A string of text to send.
+    */
+   protected final void sendMessage(final String message) {
+      bluetoothManager.sendMessage(message);
+   }
+
+   /**
+    * Sends a message to the connected device if any.
+    *
+    * @param messageBuffer A string of text to send.
+    */
+   protected final void sendMessage(byte[] messageBuffer) {
+      bluetoothManager.sendMessage(messageBuffer);
+   }
+
+   /**
+    * Checks if the mobile device is connected to another device.
+    */
+   protected final boolean isConnected() {
+      return bluetoothManager.isConnected();
+   }
+
+   /**
+    * Checks if the mobile device is connected to another device and show a toast if it isn't connected.
+    */
+   protected boolean isConnectedWithToast() {
+      if (!bluetoothManager.isConnected()) {
+         runOnUiThread(new Runnable() {
+            @Override public void run() {
+               Toast.makeText(BaseBluetoothConnectionActivity.this, R.string.not_connected, Toast.LENGTH_SHORT).show();
+            }
+         });
+         return false;
+      }
+      return true;
+   }
+
+   /**
+    * Set a dialog listener that will be used in a {@link BtDevicesListDialog}.
+    *
+    * @param dialogListener   Listener that will be used in a {@link BtDevicesListDialog}
+    */
+   protected final void setDialogListener(BtDevicesListDialog.DialogListener dialogListener) {
+      this.dialogListener = dialogListener;
+   }
+
+   /**
+    * Helper to launch {@link BtDevicesListDialog}.
+    */
+   private BtDevicesListDialog createAndShowBtDeviceList(BtDevicesListDialog.DialogListener listener) {
+      if (btDevicesListDialog == null) {
+         btDevicesListDialog = BtDevicesListDialog.Companion.newInstance(bluetoothManager.getBtConnectionType());
       }
 
+      if (!btDevicesListDialog.isVisible())
+         btDevicesListDialog.show(getSupportFragmentManager(), DEVICE_DIALOG_FRAGMENT_TAG);
+
+      btDevicesListDialog.setListener(listener);
+      return btDevicesListDialog;
+   }
+
+   /**
+    * Launch the {@link BtDevicesListDialog} to see devices and do scan.
+    */
+   protected void requestDeviceConnection() {
+      if (bluetoothManager.isBtAdapterEnabled() && !isAppInBackground) {
+         createAndShowBtDeviceList(dialogListener);
+
+      } else {
+         deviceConnectionWasRequested = true;
+         bluetoothManager.enableBluetooth(this);
+      }
+   }
+
+   /**
+    * Shows the Bluetooth devices available list to the user, when the user requested it
+    * but the Bluetooth wasn't enable, and the list must wait to the Bluetooth being enable
+    * for showing it.
+    */
+   private void showListDialog() {
+      if (bluetoothManager.isBtAdapterEnabled() && !isAppInBackground) {
+         createAndShowBtDeviceList(dialogListener);
+         deviceConnectionWasRequested = false;
+
+      } else {
+         deviceConnectionWasRequested = false;
+      }
+   }
+
+   /**
+    * Style the lists with the bluetooth devices.
+    *
+    * @return the styling class for the lists with the devices
+    */
+   protected void onDeviceListDialogStyleObtained(DevicesListDialogStyle deviceListDialogStyle) {
+      // By default, do nothing
+   }
+
+   @Override
+   public void onActivityResult(int requestCode, int resultCode, Intent data) {
+      switch (requestCode) {
+         case Droid2InoConstants.REQUEST_ENABLE_BT:
+            // When the request to enable Bluetooth returns
+            if (resultCode == Activity.RESULT_OK) {
+               // User accepted to enable the bluetooth. Bluetooth is now enabled, so prepare the Bluetooth environment
+               bluetoothManager.onEnableBluetoothIsAllowed(true);
+               Log.v(LOG_TAG, "BT enabling allowed");
+
+               // This is called before onResume() is called, so, if wait until onResume to show
+               // the bt devices dialog
+            } else {
+               // User did not enable Bluetooth or an error occurred
+               deviceConnectionWasRequested = false;
+               bluetoothManager.onEnableBluetoothIsAllowed(false);
+
+
+               Log.d(LOG_TAG, "BT enabling forbidden");
+               Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
+            }
+      }
    }
 
 }

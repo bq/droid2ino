@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  This file is part of the Androidino
+
+  Copyright (C) 2017 Mundo Reader S.L.
+
+  Date: August 2018
+  Author: Estefanía Sarasola Elvira <estefania.sarasola@bq.com>
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/dialog_width"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/dialog_title"
+        android:text="@string/select_device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:paddingTop="8dp"
+        android:paddingLeft="10dp"
+        android:textAppearance="@android:style/TextAppearance.Large"
+        android:textColor="@color/accent"
+        android:layout_toLeftOf="@+id/scan_devices_btn"/>
+
+    <ImageButton
+        android:id="@+id/scan_devices_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:src="@android:drawable/ic_popup_sync"
+        android:tint="@color/accent"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/select_bt_type_container"
+        android:layout_alignTop="@id/dialog_title"
+        android:layout_alignBottom="@id/dialog_title"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="7dp"
+        android:scaleType="center"/>
+
+    <View
+        android:id="@+id/title_separator"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_below="@id/dialog_title"
+        android:background="@color/accent"/>
+
+    <LinearLayout
+        android:id="@+id/select_bt_type_container"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@id/title_separator">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/bt_socket_type_btn"
+            android:layout_width="@dimen/dialog_select_bt_type_button"
+            android:layout_height="@dimen/dialog_select_bt_type_button"
+            android:textColor="@color/selector_bt_type_button_text"
+            android:background="@drawable/selector_bt_type_button_tint"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:padding="3dp"
+            android:text="BT socket"/>
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/ble_type_btn"
+            android:layout_width="@dimen/dialog_select_bt_type_button"
+            android:layout_height="@dimen/dialog_select_bt_type_button"
+            android:textColor="@color/selector_bt_type_button_text"
+            android:background="@drawable/selector_bt_type_button_tint"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:padding="3dp"
+            android:text="BLE"/>
+    </LinearLayout>
+
+    <include layout="@layout/device_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/title_separator"
+        android:layout_toRightOf="@id/select_bt_type_container"/>
+
+</RelativeLayout>

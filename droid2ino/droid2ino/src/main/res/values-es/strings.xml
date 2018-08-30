@@ -12,8 +12,8 @@
     <!-- DeviceListActivity -->
     <string name="scanning">Buscando dispositivos&#8230;</string>
     <string name="select_device">Selecciona un dispositivo</string>
-    <string name="none_paired">No hay dispositivos emparejados</string>
-    <string name="none_found">No se han encontrado dispositivos</string>
+    <string name="none_device_paired">No hay dispositivos emparejados</string>
+    <string name="none_device_found">No se han encontrado dispositivos</string>
     <string name="title_paired_devices">Dispositivos Emparejados</string>
     <string name="title_other_devices">Otros Dispositivos Disponibles</string>
     <string name="button_scan">Buscar dispositivos</string>
@@ -30,5 +30,7 @@
     <string name="bluetooth_not_available">El Bluetooth no está disponible. Comprueba que tu dispositivo móvil soporta conexiones Bluetooth.</string>
     <string name="connecting_bluetooth_error">No fue posible conectar con el dispositivo</string>
     <string name="connection_lost_error">Se perdió la conexión con el dispositivo</string>
+    <string name="location_disabled_error">Habilita la ubicación para buscar dispositivos bluetooth cercanos</string>
+    <string name="location_permission_not_granted_error">Acepta los permisos de ubicación para buscar dispositivos bluetooth cercanos</string>
 
 </resources>

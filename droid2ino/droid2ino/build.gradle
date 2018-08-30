@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
 
 // Used for maven local, in order to install the library in to the .m2 folder
@@ -10,17 +11,11 @@ android {
     buildToolsVersion "27.0.3"
 
     defaultConfig {
-        minSdkVersion 18
+        minSdkVersion 9
         targetSdkVersion 26
         versionCode 10
         versionName "3.0"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
+        consumerProguardFiles 'droid2ino-proguard.txt'
     }
 
     sourceSets.all {
@@ -31,6 +26,10 @@ android {
 dependencies {
     implementation "com.android.support:appcompat-v7:26.1.0"
     implementation "com.google.code.gson:gson:2.8.2"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }
 
 // Use 'gradle install' in order to install the .aar in the local maven repository

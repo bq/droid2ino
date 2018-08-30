@@ -24,27 +24,21 @@
 package com.bq.robotic.droid2ino.activities;
 
 public abstract class BaseBluetoothSendOnlyActivity extends BaseBluetoothConnectionActivity {
-	
-    /**
-     * Callback method invoked when the device receives a message from the Arduino
-     * through the bluetooth connection
-     * 
-     * @param message The message received from the Arduino
-     */
-	@Override
-	public final void onNewMessage(String message) {
-		// This activity don't receive never from the Arduino
-	}
 
     /**
-     * create a new bluetooth connection
+     * Create a new BT socket SIMPLEX connection.
      */
     @Override
     protected void setupSession() {
-        super.setupSession();
-
-        bluetoothConnection.setDuplexConnection(false);
-
+       // Configure a future connection of BT socket to be SIMPLEX. This is useful if the user
+       // select BLE as the starting default connection type and then it is changed to a BT socket one
+       // in the BtDevicesListDialog
+       configureBtSocketConnectionType(false);
+       // Select a BT socket SIMPLEX connection by default
+       selectBtSocketConnectionType(false);
     }
 
+   @Override protected void onMessageReceived(String message) {
+      // Do nothing. This connection will be simplex, we shouldn't read anything from the connected device.
+   }
 }

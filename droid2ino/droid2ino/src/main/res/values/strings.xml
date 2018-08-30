@@ -12,8 +12,8 @@
     <!-- DeviceListActivity -->
     <string name="scanning">Scanning for devices&#8230;</string>
     <string name="select_device">Select a device</string>
-    <string name="none_paired">No devices have been paired</string>
-    <string name="none_found">No devices found</string>
+    <string name="none_device_paired">No devices have been paired</string>
+    <string name="none_device_found">No devices found</string>
     <string name="title_paired_devices">Paired Devices</string>
     <string name="title_other_devices">Other Available Devices</string>
     <string name="button_scan">Scan for devices</string>
@@ -30,5 +30,7 @@
     <string name="bluetooth_not_available">Bluetooth is not available. Check if your mobile device supports Bluetooth connections.</string>
     <string name="connecting_bluetooth_error">Unable to connect device</string>
     <string name="connection_lost_error">Device connection was lost</string>
+    <string name="location_disabled_error">Enable the location to search for near bluetooth devices</string>
+    <string name="location_permission_not_granted_error">Accept the location permission to search for near bluetooth devices</string>
 
 </resources>

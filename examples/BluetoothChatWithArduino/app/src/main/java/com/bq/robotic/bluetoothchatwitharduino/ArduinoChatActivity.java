@@ -40,10 +40,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bq.robotic.droid2ino.activities.BaseBluetoothConnectionActivity;
-import com.bq.robotic.droid2ino.utils.DeviceListDialogStyle;
+import com.bq.robotic.droid2ino.communication.BtCommunicationListenerAdapter;
 import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
+import com.bq.robotic.droid2ino.views.DevicesListDialogStyle;
 
 import java.util.List;
 
@@ -150,7 +152,7 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
     *
     * @return the styling class for the lists with the devices
     */
-   protected void onDeviceListDialogStyleObtained(DeviceListDialogStyle deviceListDialogStyle) {
+   protected void onDeviceListDialogStyleObtained(DevicesListDialogStyle deviceListDialogStyle) {
       deviceListDialogStyle.getSearchDevicesTitleView().setTextColor(Color.parseColor("#EDCEFF"));
       deviceListDialogStyle.getSearchDevicesTitleView().setBackgroundColor(Color.parseColor("#5F5266"));
       deviceListDialogStyle.getDevicesPairedTitleView().setBackgroundColor(Color.parseColor("#930CFF"));
@@ -158,30 +160,48 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
    }
 
 
-   /**
-    * Callback for the changes of the connection status
-    */
-   @Override
-   public void onConnectionStatusUpdate(int connectionState) {
-      switch (connectionState) {
-         case Droid2InoConstants.STATE_CONNECTED:
-            setStatus(getString(R.string.title_connected_to, connectedDeviceName));
-            conversationArrayAdapter.clear();
-            menu.findItem(R.id.connect_scan).setEnabled(false);
-            menu.findItem(R.id.disconnect).setEnabled(true);
-            break;
-         case Droid2InoConstants.STATE_CONNECTING:
-            setStatus(R.string.title_connecting);
-            break;
-         case Droid2InoConstants.STATE_LISTEN:
-         case Droid2InoConstants.STATE_NONE:
-            setStatus(R.string.title_not_connected);
-            if (menu != null) {
-               menu.findItem(R.id.connect_scan).setEnabled(true);
-               menu.findItem(R.id.disconnect).setEnabled(false);
+   @Override protected void setupSession() {
+      super.setupSession();
+
+      // Callback for the changes of the connection status
+      setBtCommunicationListener(new BtCommunicationListenerAdapter() {
+         @Override public void onConnectionStatusUpdated(Droid2InoConstants.ConnectionState connectionState) {
+            Log.d(LOG_TAG, "onConnectionStatusUpdated = " + connectionState);
+            switch (connectionState) {
+               case CONNECTED_CONFIGURED:
+                  setStatus(getString(R.string.title_connected_to, connectedDeviceName));
+                  conversationArrayAdapter.clear();
+                  menu.findItem(R.id.connect_scan).setEnabled(false);
+                  menu.findItem(R.id.disconnect).setEnabled(true);
+                  break;
+               case CONNECTING:
+                  setStatus(R.string.title_connecting);
+                  break;
+               case LISTENING:
+               case DISCONNECTED:
+                  setStatus(R.string.title_not_connected);
+                  if (menu != null) {
+                     menu.findItem(R.id.connect_scan).setEnabled(true);
+                     menu.findItem(R.id.disconnect).setEnabled(false);
+                  }
+                  break;
             }
-            break;
-      }
+         }
+
+         @Override public void onMessageSent(String message) {
+            conversationArrayAdapter.add("Me:  " + message);
+         }
+
+         @Override public void onDeviceNameObtained(String deviceName) {
+            connectedDeviceName = deviceName;
+            Toast.makeText(getApplicationContext(), getString(com.bq.robotic.droid2ino.R.string.connected_to) + connectedDeviceName,
+               Toast.LENGTH_SHORT).show();
+         }
+
+         @Override public void onMessageReceived(String message) {
+            conversationArrayAdapter.add(connectedDeviceName + ":  " + message);
+         }
+      });
    }
 
 
@@ -226,23 +246,6 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
          }
       };
 
-
-   /**
-    * Callback for incoming messages from the arduino board
-    */
-   @Override
-   public void onNewMessage(String message) {
-      conversationArrayAdapter.add(connectedDeviceName + ":  " + message);
-   }
-
-
-   /**
-    * Callback for messages sent to the arduino board
-    */
-   @Override
-   public void onWriteSuccess(String message) {
-      conversationArrayAdapter.add("Me:  " + message);
-   }
 
    /************************************ PERMISSIONS **********************************************/
    @AfterPermissionGranted(RC_LOCATION_PERM)

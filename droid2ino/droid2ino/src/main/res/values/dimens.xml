@@ -4,6 +4,8 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
-    <dimen name="dialog_width">350dp</dimen>
+    <!--<dimen name="dialog_width">410dp</dimen>-->
+    <dimen name="dialog_width">384dp</dimen>
+    <dimen name="dialog_select_bt_type_button">64dp</dimen>
 
 </resources>

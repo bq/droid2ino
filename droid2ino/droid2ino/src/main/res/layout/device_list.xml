@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2009 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2009 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,80 +13,81 @@
      limitations under the License.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="@dimen/dialog_width"
-    android:layout_height="match_parent">
-    
-    <TextView 
-        android:id="@+id/dialog_title"
-        android:text="@string/select_device"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="7dp"
-        android:paddingTop="7dp"
-        android:paddingLeft="10dp"
-        android:textAppearance="@android:style/TextAppearance.Large"
-        android:textColor="#0099cc" />
-    
-    <TextView android:id="@+id/title_paired_devices"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/title_paired_devices"
-        android:background="#0099cc"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:paddingLeft="10dp"
-        android:paddingTop="2dp"
-        android:paddingBottom="2dp"/>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="5dp"
+    android:orientation="vertical">
 
-    <ListView android:id="@+id/paired_devices"
+    <LinearLayout
+        android:id="@+id/paired_devices_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/paired_devices_empty_item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/none_paired"
-        android:textSize="18sp"
-        android:padding="10dp"
-        android:layout_marginRight="20dp"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/title_paired_devices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="2dp"
+            android:paddingLeft="8dp"
+            android:paddingTop="2dp"
+            android:gravity="center_vertical"
+            android:text="@string/title_paired_devices"
+            android:textStyle="bold" />
 
-    <TextView android:id="@+id/title_new_devices"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/title_other_devices"
-        android:visibility="gone"
-        android:background="#0099cc"
-        android:textStyle="bold"
-        android:paddingLeft="10dp"
-        android:paddingTop="2dp"
-        android:paddingBottom="2dp"
-        android:textColor="@android:color/white"/>
+        <ListView
+            android:id="@+id/paired_devices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="2dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp" />
 
-    <ListView android:id="@+id/new_devices"
+        <TextView
+            android:id="@+id/paired_devices_empty_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:padding="10dp"
+            android:text="@string/none_device_paired"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/scanned_devices_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/new_devices_empty_item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/none_found"
-        android:textSize="18sp"
-        android:padding="10dp"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/title_scanned_devices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="2dp"
+            android:paddingLeft="8dp"
+            android:paddingTop="2dp"
+            android:text="@string/title_other_devices"
+            android:gravity="center_vertical"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
-    <Button android:id="@+id/button_scan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_scan"
-        android:layout_weight="0"/>
+        <ListView
+            android:id="@+id/scanned_devices"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp" />
+
+        <TextView
+            android:id="@+id/scanned_devices_empty_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="@string/none_device_found"
+            android:visibility="gone" />
+
+    </LinearLayout>
 </LinearLayout>

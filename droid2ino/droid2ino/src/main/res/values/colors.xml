@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#0099CC</color>
+    <color name="accent_disabled">#3000415B</color>
+    <color name="text_dark_bg">@android:color/white</color>
+    <color name="text_light_bg">#70323232</color>
+
+    <!--BT devices list dialog-->
+    <color name="selector_bt_type_primary_color">@color/accent</color>
+    <color name="selector_bt_type_secondary_color">@color/accent_disabled</color>
+
+</resources>
