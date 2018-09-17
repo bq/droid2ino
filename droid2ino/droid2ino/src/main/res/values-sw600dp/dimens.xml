@@ -5,7 +5,8 @@
          screen margins) for sw600dp devices (e.g. 7" tablets) here.
     -->
 
-    <dimen name="dialog_width">520dp</dimen>
+    <dimen name="dialog_width_land">520dp</dimen>
+    <dimen name="dialog_width_portrait">350dp</dimen>
     <dimen name="dialog_select_bt_type_button">80dp</dimen>
 
 </resources>

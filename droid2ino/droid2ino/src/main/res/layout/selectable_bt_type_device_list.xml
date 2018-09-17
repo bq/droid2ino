@@ -21,8 +21,8 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="@dimen/dialog_width"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
     <TextView
         android:id="@+id/dialog_title"
@@ -47,8 +47,8 @@
         android:layout_above="@+id/select_bt_type_container"
         android:layout_alignTop="@id/dialog_title"
         android:layout_alignBottom="@id/dialog_title"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="7dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="7dp"
         android:scaleType="center"/>
 
     <View

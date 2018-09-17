@@ -24,7 +24,6 @@
 package com.bq.robotic.bluetoothchatwitharduino;
 
 import android.Manifest;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -40,10 +39,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bq.robotic.droid2ino.activities.BaseBluetoothConnectionActivity;
-import com.bq.robotic.droid2ino.communication.BtCommunicationListenerAdapter;
 import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
 import com.bq.robotic.droid2ino.views.DevicesListDialogStyle;
 
@@ -110,6 +107,11 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
       requestPermissions();
    }
 
+   @Override protected void setupSession() {
+      super.setupSession();
+
+      showOneBtOptionDialog(true);
+   }
 
    /**
     * Callback for the menu options
@@ -153,57 +155,43 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
     * @return the styling class for the lists with the devices
     */
    protected void onDeviceListDialogStyleObtained(DevicesListDialogStyle deviceListDialogStyle) {
-      deviceListDialogStyle.getSearchDevicesTitleView().setTextColor(Color.parseColor("#EDCEFF"));
-      deviceListDialogStyle.getSearchDevicesTitleView().setBackgroundColor(Color.parseColor("#5F5266"));
-      deviceListDialogStyle.getDevicesPairedTitleView().setBackgroundColor(Color.parseColor("#930CFF"));
-      deviceListDialogStyle.getNewDevicesTitleView().setBackgroundColor(Color.parseColor("#930CFF"));
+      deviceListDialogStyle.setColorRes(this, R.color.primary_color, R.color.title_background_color);
    }
 
-
-   @Override protected void setupSession() {
-      super.setupSession();
-
-      // Callback for the changes of the connection status
-      setBtCommunicationListener(new BtCommunicationListenerAdapter() {
-         @Override public void onConnectionStatusUpdated(Droid2InoConstants.ConnectionState connectionState) {
-            Log.d(LOG_TAG, "onConnectionStatusUpdated = " + connectionState);
-            switch (connectionState) {
-               case CONNECTED_CONFIGURED:
-                  setStatus(getString(R.string.title_connected_to, connectedDeviceName));
-                  conversationArrayAdapter.clear();
-                  menu.findItem(R.id.connect_scan).setEnabled(false);
-                  menu.findItem(R.id.disconnect).setEnabled(true);
-                  break;
-               case CONNECTING:
-                  setStatus(R.string.title_connecting);
-                  break;
-               case LISTENING:
-               case DISCONNECTED:
-                  setStatus(R.string.title_not_connected);
-                  if (menu != null) {
-                     menu.findItem(R.id.connect_scan).setEnabled(true);
-                     menu.findItem(R.id.disconnect).setEnabled(false);
-                  }
-                  break;
+   @Override
+   protected void onConnectionStatusUpdated(Droid2InoConstants.ConnectionState connectionState) {
+      super.onConnectionStatusUpdated(connectionState);
+      Log.d(LOG_TAG, "onConnectionStatusUpdated = " + connectionState);
+      switch (connectionState) {
+         case CONNECTED_CONFIGURED:
+            setStatus(getString(R.string.title_connected_to, connectedDeviceName));
+            conversationArrayAdapter.clear();
+            menu.findItem(R.id.connect_scan).setEnabled(false);
+            menu.findItem(R.id.disconnect).setEnabled(true);
+            break;
+         case CONNECTING:
+            setStatus(R.string.title_connecting);
+            break;
+         case LISTENING:
+         case DISCONNECTED:
+            setStatus(R.string.title_not_connected);
+            if (menu != null) {
+               menu.findItem(R.id.connect_scan).setEnabled(true);
+               menu.findItem(R.id.disconnect).setEnabled(false);
             }
-         }
-
-         @Override public void onMessageSent(String message) {
-            conversationArrayAdapter.add("Me:  " + message);
-         }
-
-         @Override public void onDeviceNameObtained(String deviceName) {
-            connectedDeviceName = deviceName;
-            Toast.makeText(getApplicationContext(), getString(com.bq.robotic.droid2ino.R.string.connected_to) + connectedDeviceName,
-               Toast.LENGTH_SHORT).show();
-         }
-
-         @Override public void onMessageReceived(String message) {
-            conversationArrayAdapter.add(connectedDeviceName + ":  " + message);
-         }
-      });
+            break;
+      }
    }
 
+   @Override protected void onMessageSent(String message) {
+      super.onMessageSent(message);
+      conversationArrayAdapter.add("Me:  " + message);
+   }
+
+   @Override protected void onMessageReceived(String message) {
+      super.onMessageReceived(message);
+      conversationArrayAdapter.add(connectedDeviceName + ":  " + message);
+   }
 
    /**
     * Put the status of the connection in the action bar

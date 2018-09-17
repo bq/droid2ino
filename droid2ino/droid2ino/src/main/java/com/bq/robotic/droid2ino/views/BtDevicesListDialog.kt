@@ -27,6 +27,7 @@ import android.app.Dialog
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.DialogInterface
+import android.content.res.Configuration
 import android.graphics.drawable.AnimationDrawable
 import android.os.Build
 import android.os.Bundle
@@ -50,13 +51,16 @@ class BtDevicesListDialog : DialogFragment() {
 
     companion object {
         private const val BT_SCANNER_TYPE_ARG = "btScannerType"
+        private const val SHOW_ONE_BT_OPTION_ARG = "showOneBtOption"
 
         /**
          * Create a new instance for the fragment with an argument.
          */
-        fun newInstance(btScannerType: BtConnectionType): BtDevicesListDialog {
+        @JvmOverloads
+        fun newInstance(btScannerType: BtConnectionType, showOneBtOption: Boolean = false): BtDevicesListDialog {
             val args = Bundle()
             args.putSerializable(BT_SCANNER_TYPE_ARG, btScannerType)
+            args.putBoolean(SHOW_ONE_BT_OPTION_ARG, showOneBtOption)
             val fragment = BtDevicesListDialog()
             fragment.arguments = args
             return fragment
@@ -64,8 +68,8 @@ class BtDevicesListDialog : DialogFragment() {
     }
 
     private var currentBtScanner: BtScanner? = null
+    private var showOneBtOption: Boolean = false
     private val isBleScannerSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-
 
     private lateinit var pairedDevicesTitleView: TextView
     private lateinit var scannedDevicesTitleView: TextView
@@ -163,6 +167,7 @@ class BtDevicesListDialog : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         arguments?.let {
+            showOneBtOption = it.getBoolean(SHOW_ONE_BT_OPTION_ARG)
             (it.getSerializable(BT_SCANNER_TYPE_ARG) as BtConnectionType?)?.let {
                 selectBtScannerType(activity, it)
             }
@@ -173,11 +178,25 @@ class BtDevicesListDialog : DialogFragment() {
 
     override fun onResume() {
         // Sets the height and the width of the DialogFragment
-        val width = activity.resources.getDimensionPixelSize(R.dimen.dialog_width)
-        val height = RelativeLayout.LayoutParams.WRAP_CONTENT
-        dialog.window!!.setLayout(width, height)
-
+        setLayoutSize()
         super.onResume()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        setLayoutSize()
+    }
+
+    private fun setLayoutSize() {
+        val currentOrientation = resources.configuration.orientation
+        val height = RelativeLayout.LayoutParams.WRAP_CONTENT
+
+        val width = if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE)
+                    activity.resources.getDimensionPixelSize(R.dimen.dialog_width_land)
+                else
+                    activity.resources.getDimensionPixelSize(R.dimen.dialog_width_portrait)
+
+        dialog.window!!.setLayout(width, height)
     }
 
     private fun initCustomView(contentView: View) {
@@ -192,7 +211,7 @@ class BtDevicesListDialog : DialogFragment() {
             selectBtScannerType(activity, BtConnectionType.BLE)
         }
 
-        scanDevicesButton = contentView.findViewById(R.id.scan_devices_btn)
+        scanDevicesButton = contentView.findViewById<ImageButton>(R.id.scan_devices_btn)
         scanDevicesButtonAnimation = scanDevicesButton.drawable as AnimationDrawable
         scanDevicesButton.setOnClickListener {
             obtainBtDevices(contentView)
@@ -200,14 +219,6 @@ class BtDevicesListDialog : DialogFragment() {
 
         pairedDevicesTitleView = contentView.findViewById(R.id.title_paired_devices)
         scannedDevicesTitleView = contentView.findViewById(R.id.title_scanned_devices)
-
-        // Initialize the object for the styling modifications of the search bluetooth device dialog
-        dialogStyle = DevicesListDialogStyle(contentView.findViewById(R.id.dialog_title),
-            btSocketSelectorView,
-            if (isBleScannerSupported) bleSelectorView else null,
-            scanDevicesButton,
-            contentView.findViewById(R.id.title_separator))
-        listener?.onDevicesListDialogStyleCreated(dialogStyle)
 
         emptyPairedDevicesListItem = contentView.findViewById(R.id.paired_devices_empty_item)
         emptyScannedDevicesListItem = contentView.findViewById(R.id.scanned_devices_empty_item)
@@ -232,6 +243,14 @@ class BtDevicesListDialog : DialogFragment() {
             emptyView = emptyScannedDevicesListItem
         }
         emptyScannedDevicesListItem.visibility = View.GONE
+
+        // Initialize the object for the styling modifications of the search bluetooth device dialog
+        dialogStyle = DevicesListDialogStyle(contentView.findViewById(R.id.dialog_title),
+            btSocketSelectorView,
+            if (isBleScannerSupported) bleSelectorView else null,
+            scanDevicesButton,
+            contentView.findViewById(R.id.title_separator))
+        listener?.onDevicesListDialogStyleCreated(dialogStyle)
 
         isInitialized = true
 
@@ -300,11 +319,21 @@ class BtDevicesListDialog : DialogFragment() {
 
         when (connectionType) {
             BtConnectionType.BT_SOCKET -> {
-                bleSelectorView.isSelected = false
+                // Hide the other option if only one has to be shown
+                if (showOneBtOption)
+                    bleSelectorView.visibility = View.GONE
+                else
+                    bleSelectorView.isSelected = false
+
                 btSocketSelectorView.isSelected = true
             }
             BtConnectionType.BLE -> {
-                btSocketSelectorView.isSelected = false
+                // Hide the other option if only one has to be shown
+                if (showOneBtOption)
+                    btSocketSelectorView.visibility = View.GONE
+                else
+                    btSocketSelectorView.isSelected = false
+
                 bleSelectorView.isSelected = true
             }
         }

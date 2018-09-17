@@ -64,6 +64,7 @@ public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity 
 
    private BluetoothManager bluetoothManager;
    private BtDevicesListDialog btDevicesListDialog;
+   private boolean showOneBtOptionDialog = false;
    private static final String DEVICE_DIALOG_FRAGMENT_TAG = "deviceDialog";
 
    private BtDevicesListDialog.DialogListener dialogListener = new BtDevicesListDialog.DialogListener() {
@@ -217,7 +218,7 @@ public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity 
     * @param connectionState Message types sent from the BluetoothConnectService Handler
     */
    protected void onConnectionStatusUpdated(Droid2InoConstants.ConnectionState connectionState) {
-      Log.d(LOG_TAG, "Connectivity changed  : " + connectionState);
+      Log.d(LOG_TAG, "Connection status updated  : " + connectionState);
    }
 
    /**
@@ -235,7 +236,7 @@ public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity 
     * @param message new message string
     */
    protected void onMessageReceived(String message) {
-      Log.d(LOG_TAG, "Message Received: " + message);
+      Log.d(LOG_TAG, "Message received: " + message);
    }
 
    /**
@@ -431,6 +432,10 @@ public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity 
       return true;
    }
 
+   protected final void showOneBtOptionDialog(boolean showOneBtOption) {
+      showOneBtOptionDialog = showOneBtOption;
+   }
+
    /**
     * Set a dialog listener that will be used in a {@link BtDevicesListDialog}.
     *
@@ -445,7 +450,7 @@ public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity 
     */
    private BtDevicesListDialog createAndShowBtDeviceList(BtDevicesListDialog.DialogListener listener) {
       if (btDevicesListDialog == null) {
-         btDevicesListDialog = BtDevicesListDialog.Companion.newInstance(bluetoothManager.getBtConnectionType());
+         btDevicesListDialog = BtDevicesListDialog.Companion.newInstance(bluetoothManager.getBtConnectionType(), showOneBtOptionDialog);
       }
 
       if (!btDevicesListDialog.isVisible())

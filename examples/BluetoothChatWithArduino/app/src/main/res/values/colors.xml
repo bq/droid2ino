@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_color">#D8C6FF</color>
+    <color name="title_background_color">#5F5266</color>
+
+    <color name="selector_view_selected">#930CFF</color>
+    <color name="selector_view_unselected">#9280C2</color>
+
+</resources>
