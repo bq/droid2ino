@@ -17,4 +17,8 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    <style name="BoldTab" parent="@android:style/TextAppearance.Widget.TabWidget">
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

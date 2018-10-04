@@ -6,6 +6,7 @@
     -->
 
     <dimen name="dialog_width_land">520dp</dimen>
-    <dimen name="dialog_width_portrait">350dp</dimen>
+    <dimen name="dialog_width_portrait">460dp</dimen>
+    <dimen name="dialog_tabs_height">34dp</dimen>
 
 </resources>

@@ -155,7 +155,7 @@ public class ArduinoChatActivity extends BaseBluetoothConnectionActivity
     * @return the styling class for the lists with the devices
     */
    protected void onDeviceListDialogStyleObtained(DevicesListDialogStyle deviceListDialogStyle) {
-      deviceListDialogStyle.setColorRes(this, R.color.primary_color, R.color.title_background_color);
+      deviceListDialogStyle.setColorRes(this, R.color.accent_color, R.color.title_text_color);
    }
 
    @Override

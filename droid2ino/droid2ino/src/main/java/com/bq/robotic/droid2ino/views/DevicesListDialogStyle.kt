@@ -24,7 +24,6 @@
 package com.bq.robotic.droid2ino.views
 
 import android.content.Context
-import android.graphics.PorterDuff
 import android.support.annotation.ColorInt
 import android.support.annotation.ColorRes
 import android.support.v4.content.ContextCompat
@@ -34,24 +33,27 @@ import android.view.View
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
-import android.os.Build
 import android.support.annotation.DrawableRes
+import android.support.design.widget.TabLayout
+import android.support.v4.graphics.drawable.DrawableCompat
 
 /**
  * Utils class for style the components of the scanned bluetooth devices dialog [BtDevicesListDialog].
- * @param bleSelectorView will be null if the BLE scanner is not supported as the device api level
+ * @param bleSelectorTab will be null if the BLE scanner is not supported as the device api level
  * is less that LOLLIPOP (21).
  *
- * @param titleView                 TextView of the title of the dialog for searching the bluetooth devices
- * @param btSocketSelectorView      TextView used for select the BT socket connection type
- * @param bleSelectorView           TextView used for select the BLE socket connection type.
- *                                  Null if BLE scanner is not supported
- * @param scanBtDevicesButton       Button used for scanning BT devices again
- * @param titleSeparatorView        Simple line separator between the title of the dialog and the content.
+ * @param titleView                TextView of the title of the dialog for searching the bluetooth devices
+ * @param btSelectorTabLayout      TabLayout container for the tabs with the BT options
+ * @param btSocketSelectorTab      Tab used for select the BT socket connection type
+ * @param bleSelectorTab           Tab used for select the BLE socket connection type.
+ *                                 Null if BLE scanner is not supported
+ * @param scanBtDevicesButton      Button used for scanning BT devices again
+ * @param titleSeparatorView       Simple line separator between the title of the dialog and the content.
  */
 data class DevicesListDialogStyle(val titleView: TextView,
-                                  val btSocketSelectorView: TextView,
-                                  val bleSelectorView: TextView? = null,
+                                  val btSelectorTabLayout: TabLayout,
+                                  val btSocketSelectorTab: TabLayout.Tab,
+                                  val bleSelectorTab: TabLayout.Tab? = null,
                                   val scanBtDevicesButton: ImageButton,
                                   val titleSeparatorView: View) {
 
@@ -64,37 +66,26 @@ data class DevicesListDialogStyle(val titleView: TextView,
      */
     @JvmOverloads
     fun setColor(@ColorInt primaryColor: Int, @ColorInt secondaryColor: Int = -1,
-                 applyToBtTypeSelector: Boolean = false) {
+                 applyToBtTypeSelector: Boolean = true) {
         (titleView.parent as? View)?.setBackgroundColor(primaryColor)
 
         if (secondaryColor != -1) {
             titleView.setTextColor(secondaryColor)
-            scanBtDevicesButton.setColorFilter(secondaryColor, PorterDuff.Mode.MULTIPLY)
+            DrawableCompat.setTint(scanBtDevicesButton.drawable.mutate(), secondaryColor)
             titleSeparatorView.setBackgroundColor(secondaryColor)
+        }
 
-            if (applyToBtTypeSelector) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    btSocketSelectorView.background = getStateListDrawable(primaryColor, secondaryColor)
-                    bleSelectorView?.background = getStateListDrawable(primaryColor, secondaryColor)
-                } else {
-                    btSocketSelectorView.setBackgroundDrawable(getStateListDrawable(primaryColor, secondaryColor))
-                    bleSelectorView?.setBackgroundDrawable(getStateListDrawable(primaryColor, secondaryColor))
-                }
-            }
+        if (applyToBtTypeSelector) {
+            btSelectorTabLayout.setSelectedTabIndicatorColor(primaryColor)
         }
     }
 
     /**
-     * Set the [backgroundDrawable] param as the background drawable of the BT type selector views.
+     * Set the [iconDrawable] param as the background drawable of the BT type selector views.
      */
-    fun setBtSelectorBgDrawable(backgroundDrawable: Drawable) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            btSocketSelectorView.background = backgroundDrawable
-            bleSelectorView?.background = backgroundDrawable
-        } else {
-            btSocketSelectorView.setBackgroundDrawable(backgroundDrawable)
-            bleSelectorView?.setBackgroundDrawable(backgroundDrawable)
-        }
+    fun setBtSelectorTabIcon(iconDrawable: Drawable) {
+            btSocketSelectorTab.icon = iconDrawable
+            bleSelectorTab?.icon = iconDrawable
     }
 
     /**
@@ -104,15 +95,15 @@ data class DevicesListDialogStyle(val titleView: TextView,
     fun setColorRes(context: Context, @ColorRes primaryColorRes: Int, @ColorRes secondaryRes: Int = -1,
                     applyToBtTypeSelector: Boolean = true) {
         setColor(ContextCompat.getColor(context, primaryColorRes),
-            if (secondaryRes != 1) ContextCompat.getColor(context, secondaryRes) else -1,
+            if (secondaryRes != -1) ContextCompat.getColor(context, secondaryRes) else -1,
             applyToBtTypeSelector)
     }
 
     /**
-     * Same method as [setBtSelectorBgDrawable] but using resources ids instead the resources themselves.
+     * Same method as [setBtSelectorTabIcon] but using resources ids instead the resources themselves.
      */
-    fun setButtonsBgDrawableRes(context: Context, @DrawableRes backgroundDrawableRes: Int) {
-        setBtSelectorBgDrawable(ContextCompat.getDrawable(context, backgroundDrawableRes))
+    fun setBtSelectorTabIconRes(context: Context, @DrawableRes backgroundDrawableRes: Int) {
+        setBtSelectorTabIcon(ContextCompat.getDrawable(context, backgroundDrawableRes))
     }
 
     /**
@@ -122,7 +113,7 @@ data class DevicesListDialogStyle(val titleView: TextView,
      * @param primaryColor The color in pressed state.
      * @param secondaryColor  The color in normal state.
      */
-    private fun getStateListDrawable(primaryColor: Int, secondaryColor: Int): StateListDrawable {
+    fun getStateListDrawable(primaryColor: Int, secondaryColor: Int): StateListDrawable {
         val stateListDrawable = StateListDrawable()
         stateListDrawable.addState(intArrayOf(android.R.attr.state_pressed), ColorDrawable(primaryColor))
         stateListDrawable.addState(intArrayOf(android.R.attr.state_selected), ColorDrawable(primaryColor))

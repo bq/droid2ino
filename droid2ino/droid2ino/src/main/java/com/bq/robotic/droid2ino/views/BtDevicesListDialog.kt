@@ -30,6 +30,7 @@ import android.content.DialogInterface
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.support.design.widget.TabLayout
 import android.support.v4.app.DialogFragment
 import android.util.Log
 import android.view.LayoutInflater
@@ -75,8 +76,6 @@ class BtDevicesListDialog : DialogFragment() {
 
     private lateinit var pairedDevicesTitleView: TextView
     private lateinit var scannedDevicesTitleView: TextView
-    private lateinit var btSocketSelectorView: TextView
-    private lateinit var bleSelectorView: TextView
     private lateinit var scanDevicesButton: ImageButton
     private val scanBtDevicesButtonAnim by lazy {
         RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF,
@@ -85,6 +84,12 @@ class BtDevicesListDialog : DialogFragment() {
             duration = 2000
         }
     }
+
+    private val BT_SOCKET_TAB_POSITION = 0
+    private val BLE_TAB_POSITION = 1
+    private lateinit var btSelectorTabLayout: TabLayout
+    private lateinit var btSocketSelectorTab: TabLayout.Tab
+    private var bleSelectorTab: TabLayout.Tab? = null
 
     private lateinit var pairedDevicesArrayAdapter: ArrayAdapter<String>
     private lateinit var scannedDevicesArrayAdapter: ArrayAdapter<String>
@@ -207,15 +212,27 @@ class BtDevicesListDialog : DialogFragment() {
     }
 
     private fun initCustomView(contentView: View) {
-        btSocketSelectorView = contentView.findViewById(R.id.bt_socket_type_btn)
-        bleSelectorView = contentView.findViewById(R.id.ble_type_btn)
+        btSelectorTabLayout = contentView.findViewById<TabLayout>(R.id.select_bt_type_container)
+        with(btSelectorTabLayout) {
+            btSocketSelectorTab = getTabAt(BT_SOCKET_TAB_POSITION)!!
 
-        btSocketSelectorView.setOnClickListener {
-            selectBtScannerType(activity, BtConnectionType.BT_SOCKET)
-        }
+            if (!isBleScannerSupported)
+                removeTabAt(BLE_TAB_POSITION)
+            else
+                bleSelectorTab = getTabAt(BLE_TAB_POSITION)!!
 
-        bleSelectorView.setOnClickListener {
-            selectBtScannerType(activity, BtConnectionType.BLE)
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    when (tab) {
+                        btSocketSelectorTab -> selectBtScannerType(activity, BtConnectionType.BT_SOCKET)
+                        bleSelectorTab -> selectBtScannerType(activity, BtConnectionType.BLE)
+                    }
+                }
+
+                override fun onTabReselected(tab: TabLayout.Tab?) {}
+
+                override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            })
         }
 
         scanDevicesButton = contentView.findViewById<ImageButton>(R.id.scan_devices_btn)
@@ -252,8 +269,9 @@ class BtDevicesListDialog : DialogFragment() {
 
         // Initialize the object for the styling modifications of the search bluetooth device dialog
         dialogStyle = DevicesListDialogStyle(contentView.findViewById(R.id.dialog_title),
-            btSocketSelectorView,
-            if (isBleScannerSupported) bleSelectorView else null,
+            btSelectorTabLayout,
+            btSocketSelectorTab,
+            bleSelectorTab,
             scanDevicesButton,
             contentView.findViewById(R.id.title_separator))
         listener?.onDevicesListDialogStyleCreated(dialogStyle)
@@ -319,28 +337,37 @@ class BtDevicesListDialog : DialogFragment() {
     }
 
     private fun updateBtTypeSelectorViews(connectionType: BtConnectionType) {
-        if (!isBleScannerSupported) {
-            bleSelectorView.visibility = View.GONE
+        if (!isBleScannerSupported && btSelectorTabLayout.tabCount > 1) {
+            btSelectorTabLayout.removeTabAt(BLE_TAB_POSITION)
         }
 
         when (connectionType) {
             BtConnectionType.BT_SOCKET -> {
                 // Hide the other option if only one has to be shown
-                if (showOneBtOption)
-                    bleSelectorView.visibility = View.GONE
-                else
-                    bleSelectorView.isSelected = false
+                if (showOneBtOption) {
+                    if (btSelectorTabLayout.tabCount <= 1) {
+                        btSelectorTabLayout.removeAllTabs()
+                        btSelectorTabLayout.addTab(btSocketSelectorTab, BT_SOCKET_TAB_POSITION)
+                    } else
+                        btSelectorTabLayout.removeTabAt(BLE_TAB_POSITION)
+                }
 
-                btSocketSelectorView.isSelected = true
+                if (!btSocketSelectorTab.isSelected) btSocketSelectorTab.select()
             }
+
             BtConnectionType.BLE -> {
                 // Hide the other option if only one has to be shown
-                if (showOneBtOption)
-                    btSocketSelectorView.visibility = View.GONE
-                else
-                    btSocketSelectorView.isSelected = false
+                if (showOneBtOption) {
+                    if (btSelectorTabLayout.tabCount <= 1) {
+                        btSelectorTabLayout.removeAllTabs()
+                        bleSelectorTab?.let {
+                            btSelectorTabLayout.addTab(it, BLE_TAB_POSITION)
+                        }
+                    } else
+                        btSelectorTabLayout.removeTabAt(BT_SOCKET_TAB_POSITION)
+                }
 
-                bleSelectorView.isSelected = true
+                if (bleSelectorTab?.isSelected == false) bleSelectorTab?.select()
             }
         }
     }

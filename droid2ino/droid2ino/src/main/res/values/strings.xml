@@ -17,6 +17,8 @@
     <string name="title_paired_devices">Paired Devices</string>
     <string name="title_other_devices">Other Available Devices</string>
     <string name="button_scan">Scan for devices</string>
+    <string name="bt_socket_option">BT socket</string>
+    <string name="ble_option">BLE</string>
 
     <!-- Options Menu -->
     <string name="connect">Connect</string>

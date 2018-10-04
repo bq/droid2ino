@@ -21,6 +21,7 @@
   along with this program. If not, see <http://www.gnu.org/licenses/>.
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
@@ -69,35 +70,31 @@
         android:background="@color/accent"
         android:visibility="gone" />
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <!--tabMaxWidth needs a very high value so the indicator is match parent when there is only one
+    tab (in devices that doesn't support BLE for example)-->
+    <android.support.design.widget.TabLayout
         android:id="@+id/select_bt_type_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/title_separator">
+        android:layout_height="@dimen/dialog_tabs_height"
+        app:tabMode="fixed"
+        app:tabGravity="fill"
+        app:tabMaxWidth="99999dp"
+        app:tabIndicatorColor="@color/accent"
+        app:tabBackground="@drawable/unselected_bt_type_button_bg"
+        app:tabTextAppearance="@style/BoldTab"
+        android:layout_below="@id/title_separator" >
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/bt_socket_type_btn"
-            android:layout_width="0dp"
+        <android.support.design.widget.TabItem
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/selector_bt_type_button_tint"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_weight="1"
-            android:padding="3dp"
-            android:text="BT socket"/>
+            android:text="@string/bt_socket_option"/>
 
-        <android.support.v7.widget.AppCompatTextView
-            android:id="@+id/ble_type_btn"
-            android:layout_width="0dp"
+        <android.support.design.widget.TabItem
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/selector_bt_type_button_tint"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_weight="1"
-            android:padding="3dp"
-            android:text="BLE"/>
-    </android.support.v7.widget.LinearLayoutCompat>
+            android:text="@string/ble_option"/>
+
+    </android.support.design.widget.TabLayout>
 
     <include layout="@layout/device_list"
         android:layout_width="match_parent"
