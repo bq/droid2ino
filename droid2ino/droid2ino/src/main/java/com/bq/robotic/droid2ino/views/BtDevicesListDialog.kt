@@ -28,7 +28,6 @@ import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Configuration
-import android.graphics.drawable.AnimationDrawable
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
@@ -37,6 +36,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.view.animation.Animation
+import android.view.animation.Animation.INFINITE
 import android.widget.*
 import com.bq.robotic.droid2ino.R
 import com.bq.robotic.droid2ino.communication.BluetoothManager.BtConnectionType
@@ -45,6 +46,7 @@ import com.bq.robotic.droid2ino.communication.ble.BleScanner
 import com.bq.robotic.droid2ino.communication.btsocket.BtSocketScanner
 import com.bq.robotic.droid2ino.utils.Droid2InoConstants
 import com.bq.robotic.droid2ino.utils.LocationUtils
+import android.view.animation.RotateAnimation
 
 class BtDevicesListDialog : DialogFragment() {
     private val LOG_TAG = this.javaClass.simpleName
@@ -76,7 +78,13 @@ class BtDevicesListDialog : DialogFragment() {
     private lateinit var btSocketSelectorView: TextView
     private lateinit var bleSelectorView: TextView
     private lateinit var scanDevicesButton: ImageButton
-    private lateinit var scanDevicesButtonAnimation: AnimationDrawable
+    private val scanBtDevicesButtonAnim by lazy {
+        RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF,
+            0.5f, Animation.RELATIVE_TO_SELF, 0.5f).apply {
+            repeatCount = INFINITE
+            duration = 2000
+        }
+    }
 
     private lateinit var pairedDevicesArrayAdapter: ArrayAdapter<String>
     private lateinit var scannedDevicesArrayAdapter: ArrayAdapter<String>
@@ -126,8 +134,7 @@ class BtDevicesListDialog : DialogFragment() {
                 view?.let {
                     val dialogTitle = view!!.findViewById<View>(R.id.dialog_title) as TextView
                     dialogTitle.setText(R.string.select_device)
-                    scanDevicesButtonAnimation.stop()
-                    scanDevicesButtonAnimation.selectDrawable(0)
+                    scanDevicesButton.animation?.cancel()
                 }
             }
         }
@@ -212,7 +219,6 @@ class BtDevicesListDialog : DialogFragment() {
         }
 
         scanDevicesButton = contentView.findViewById<ImageButton>(R.id.scan_devices_btn)
-        scanDevicesButtonAnimation = scanDevicesButton.drawable as AnimationDrawable
         scanDevicesButton.setOnClickListener {
             obtainBtDevices(contentView)
         }
@@ -367,7 +373,7 @@ class BtDevicesListDialog : DialogFragment() {
         } else if (currentBtScanner?.scanForBtDevices() == true) {
             emptyScannedDevicesListItem.setText(R.string.none_device_found)
             resetScannedLists()
-            scanDevicesButtonAnimation.start()
+            scanDevicesButton.startAnimation(scanBtDevicesButtonAnim)
         }
 
     }

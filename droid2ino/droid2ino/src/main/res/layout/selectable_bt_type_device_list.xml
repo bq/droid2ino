@@ -24,52 +24,62 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <TextView
-        android:id="@+id/dialog_title"
-        android:text="@string/select_device"
+    <LinearLayout
+        android:id="@+id/dialog_title_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp"
-        android:paddingLeft="10dp"
-        android:textAppearance="@android:style/TextAppearance.Large"
-        android:textColor="@color/accent"
-        android:layout_toLeftOf="@+id/scan_devices_btn"/>
+        android:gravity="center_vertical"
+        android:background="@color/accent"
+        android:orientation="horizontal">
 
-    <ImageButton
-        android:id="@+id/scan_devices_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@null"
-        android:src="@android:drawable/ic_popup_sync"
-        android:tint="@color/accent"
-        android:layout_alignParentRight="true"
-        android:layout_above="@+id/select_bt_type_container"
-        android:layout_alignTop="@id/dialog_title"
-        android:layout_alignBottom="@id/dialog_title"
-        android:paddingLeft="8dp"
-        android:paddingRight="7dp"
-        android:scaleType="center"/>
+        <TextView
+            android:id="@+id/dialog_title"
+            android:text="@string/select_device"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
+            android:paddingLeft="10dp"
+            android:layout_weight="1"
+            android:textAppearance="@android:style/TextAppearance.Medium"
+            android:textColor="@color/text_dark_bg"/>
 
+        <ImageButton
+            android:id="@+id/scan_devices_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:layout_gravity="right|center_vertical"
+            android:src="@drawable/scan_bt_devices_icon"
+            android:tint="@color/text_dark_bg"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3sp"
+            android:scaleType="centerCrop"/>
+
+    </LinearLayout>
+
+    <!--Separator view to use if the title of the background is of the same color of the below buttons background-->
     <View
         android:id="@+id/title_separator"
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:layout_below="@id/dialog_title"
-        android:background="@color/accent"/>
+        android:layout_below="@id/dialog_title_container"
+        android:background="@color/accent"
+        android:visibility="gone" />
 
-    <LinearLayout
+    <android.support.v7.widget.LinearLayoutCompat
         android:id="@+id/select_bt_type_container"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_below="@id/title_separator">
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/bt_socket_type_btn"
-            android:layout_width="@dimen/dialog_select_bt_type_button"
-            android:layout_height="@dimen/dialog_select_bt_type_button"
-            android:textColor="@color/selector_bt_type_button_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/selector_bt_type_button_tint"
             android:textStyle="bold"
             android:gravity="center"
@@ -79,21 +89,19 @@
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/ble_type_btn"
-            android:layout_width="@dimen/dialog_select_bt_type_button"
-            android:layout_height="@dimen/dialog_select_bt_type_button"
-            android:textColor="@color/selector_bt_type_button_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/selector_bt_type_button_tint"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_weight="1"
             android:padding="3dp"
             android:text="BLE"/>
-    </LinearLayout>
+    </android.support.v7.widget.LinearLayoutCompat>
 
     <include layout="@layout/device_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/title_separator"
-        android:layout_toRightOf="@id/select_bt_type_container"/>
+        android:layout_below="@id/select_bt_type_container"/>
 
 </RelativeLayout>

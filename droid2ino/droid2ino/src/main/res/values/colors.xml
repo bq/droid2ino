@@ -4,6 +4,7 @@
     <color name="accent_disabled">#3000415B</color>
     <color name="text_dark_bg">@android:color/white</color>
     <color name="text_light_bg">#70323232</color>
+    <color name="black_transparent">#38000000</color>
 
     <!--BT devices list dialog-->
     <color name="selector_bt_type_primary_color">@color/accent</color>

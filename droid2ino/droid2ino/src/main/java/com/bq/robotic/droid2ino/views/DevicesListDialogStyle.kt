@@ -56,22 +56,21 @@ data class DevicesListDialogStyle(val titleView: TextView,
                                   val titleSeparatorView: View) {
 
     /**
-     * Set a color scheme for the [BtDevicesListDialog]. The [primaryColor] will be used for the
-     * title text, the title separator and the scan devices button. The [secondaryColor] will be used
-     * for the title and the scan button backgrounds.
+     * Set a color scheme for the [BtDevicesListDialog]. The [primaryColor] will be used
+     * for the title and the scan button backgrounds. The [secondaryColor] will be used for the
+     * title text, the title separator and the scan devices button.
      * Also if [applyToBtTypeSelector] is true, both colors will be used for the background of the
      * bt type selector views using them in the selected or unselected states.
      */
     @JvmOverloads
     fun setColor(@ColorInt primaryColor: Int, @ColorInt secondaryColor: Int = -1,
-                 applyToBtTypeSelector: Boolean = true) {
-        titleView.setTextColor(primaryColor)
-        scanBtDevicesButton.setColorFilter(primaryColor, PorterDuff.Mode.MULTIPLY)
-        titleSeparatorView.setBackgroundColor(primaryColor)
+                 applyToBtTypeSelector: Boolean = false) {
+        (titleView.parent as? View)?.setBackgroundColor(primaryColor)
 
         if (secondaryColor != -1) {
-            titleView.setBackgroundColor(secondaryColor)
-            scanBtDevicesButton.setBackgroundColor(secondaryColor)
+            titleView.setTextColor(secondaryColor)
+            scanBtDevicesButton.setColorFilter(secondaryColor, PorterDuff.Mode.MULTIPLY)
+            titleSeparatorView.setBackgroundColor(secondaryColor)
 
             if (applyToBtTypeSelector) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {

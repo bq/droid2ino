@@ -16,6 +16,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="5dp"
+    android:paddingLeft="6dp"
+    android:paddingRight="6dp"
     android:orientation="vertical">
 
     <LinearLayout
@@ -41,8 +43,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="2dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp" />
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:divider="@null"
+            android:fadeScrollbars="false"/>
 
         <TextView
             android:id="@+id/paired_devices_empty_item"
@@ -78,8 +82,10 @@
             android:id="@+id/scanned_devices"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp" />
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:divider="@null"
+            android:fadeScrollbars="false"/>
 
         <TextView
             android:id="@+id/scanned_devices_empty_item"

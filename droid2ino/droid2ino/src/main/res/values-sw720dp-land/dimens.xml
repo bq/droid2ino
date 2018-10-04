@@ -8,6 +8,5 @@
 
     <dimen name="dialog_width_land">616dp</dimen>
     <dimen name="dialog_width_portrait">450dp</dimen>
-    <dimen name="dialog_select_bt_type_button">112dp</dimen>
 
 </resources>
