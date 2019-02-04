@@ -109,13 +109,24 @@ class BluetoothManager(ctx: Context) {
      */
     fun enableBluetooth(activity: Activity) {
         if (isEnableBluetoothAllowed) {
-            registerBtAdapterChangesReceiver()
-            btAdapter.enable()
+            try {
+                registerBtAdapterChangesReceiver()
+                btAdapter.enable()
+            } catch (se: SecurityException) {
+                Log.d(LOG_TAG,"Enabling the BT failed, retry asking the permission again")
+                isEnableBluetoothAllowed = false
+                unregisterBtAdapterChangesReceiver()
+                requestEnableBtPermission(activity)
+            }
         } else {
-            val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            Log.v(LOG_TAG, "Requesting to enable the BT")
-            activity.startActivityForResult(enableIntent, Droid2InoConstants.REQUEST_ENABLE_BT)
+            requestEnableBtPermission(activity)
         }
+    }
+
+    private fun requestEnableBtPermission(activity: Activity) {
+        val enableIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+        Log.v(LOG_TAG, "Requesting to enable the BT")
+        activity.startActivityForResult(enableIntent, Droid2InoConstants.REQUEST_ENABLE_BT)
     }
 
     /**
@@ -297,8 +308,14 @@ class BluetoothManager(ctx: Context) {
         if (isEnableBluetoothAllowed) {
             if (!btAdapter.isEnabled) {
                 // Don't call to enableBluetooth() here, as it would request the user to give permission now
-                // Wait until the user require it
-                btAdapter.enable()
+                // Wait until the user require it. Also in the case of a SecurityException, just wait
+                // until the user requires to enable it to ask for ot again
+                try {
+                    btAdapter.enable()
+                } catch (se: SecurityException) {
+                    Log.d(LOG_TAG, "Permission to enable the BT is not granted anymore")
+                    isEnableBluetoothAllowed = false
+                }
             }
         }
     }
