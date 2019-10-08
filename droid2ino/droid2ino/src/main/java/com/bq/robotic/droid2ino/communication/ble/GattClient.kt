@@ -411,20 +411,28 @@ class GattClient(private val bleProfile: BleProfile) {
     }
 
     private fun readCustomCharacteristic(characteristic: BluetoothGattCharacteristic) {
-        val json = characteristic.getStringValue(0)
-        Log.d(LOG_TAG, "Custom characteristic message obtained: $json")
+//        val json = characteristic.getStringValue(0)
+//        Log.d(LOG_TAG, "Custom characteristic message obtained: $json")
+//
+//        if (json.isNotBlank()) {
+//            messageReceivedBuilder.append(json)
+//
+//            if (GsonValidator.isJsonValid(messageReceivedBuilder.toString())) {
+//                Log.d(LOG_TAG, "Message received = $messageReceivedBuilder")
+//                lastRequestStatus = RequestStatus.MESSAGE_RECEIVED_FROM_DEVICE
+//                eventListener?.onMessageReceived(messageReceivedBuilder.toString())
+//
+//                // Clear the builder for the next messages
+//                messageReceivedBuilder.setLength(0)
+//            }
+//        }
 
-        if (json.isNotBlank()) {
-            messageReceivedBuilder.append(json)
+        val value = characteristic.value
+        Log.d(LOG_TAG, "Custom characteristic message obtained: $value")
 
-            if (GsonValidator.isJsonValid(messageReceivedBuilder.toString())) {
-                Log.d(LOG_TAG, "Message received = $messageReceivedBuilder")
+        if (value.isNotEmpty()) {
                 lastRequestStatus = RequestStatus.MESSAGE_RECEIVED_FROM_DEVICE
-                eventListener?.onMessageReceived(messageReceivedBuilder.toString())
-
-                // Clear the builder for the next messages
-                messageReceivedBuilder.setLength(0)
-            }
+                eventListener?.onValueReceived(value)
         }
     }
 
@@ -513,8 +521,9 @@ class GattClient(private val bleProfile: BleProfile) {
     interface OnGattEventListener {
         fun onStateChanged(state: State)
         fun onLastRequestStatusChanged(requestStatus: RequestStatus)
-        fun onMessageReceived(messageSent: String)
-        fun onMessageSent(messageReceived: String)
+        fun onMessageReceived(messageReceived: String)
+        fun onValueReceived(value: ByteArray)
+        fun onMessageSent(messageSent: String)
         fun onDeviceNameObtained(deviceName: String)
     }
 

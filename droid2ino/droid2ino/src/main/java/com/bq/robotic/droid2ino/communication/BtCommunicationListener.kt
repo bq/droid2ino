@@ -54,6 +54,14 @@ interface BtCommunicationListener {
      */
     fun onMessageReceived(message: String)
 
+
+    /**
+     * Callback that will be invoked when new value is received.
+     *
+     * @param message new ByteArray value
+     */
+    fun onValueReceived(value: ByteArray)
+
     /**
      * Callback that will be invoked when we obtain the name of the device to which we are connected to.
      */
@@ -101,6 +109,13 @@ abstract class BtCommunicationListenerAdapter : BtCommunicationListener {
      */
     override fun onMessageReceived(message: String) {
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    override fun onValueReceived(value: ByteArray) {
+    }
+
 
     /**
      * {@inheritDoc}

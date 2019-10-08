@@ -67,13 +67,17 @@ class BleController(private val btAdapter: BluetoothAdapter): BtControllerInterf
                 }
             }
 
-            override fun onMessageSent(@NotNull messageReceived: String) {
-                communicationHandler.obtainMessage(Droid2InoConstants.MESSAGE_SENT, messageReceived).sendToTarget()
+            override fun onMessageSent(@NotNull messageSent: String) {
+                communicationHandler.obtainMessage(Droid2InoConstants.MESSAGE_SENT, messageSent).sendToTarget()
             }
 
-            override fun onMessageReceived(@NotNull messageSent: String) {
-                communicationHandler.obtainMessage(Droid2InoConstants.MESSAGE_RECEIVED, messageSent)
+            override fun onMessageReceived(@NotNull messageReceived: String) {
+                communicationHandler.obtainMessage(Droid2InoConstants.MESSAGE_RECEIVED, messageReceived)
                     .sendToTarget()
+            }
+
+            override fun onValueReceived(value: ByteArray) {
+                communicationHandler.obtainMessage(Droid2InoConstants.VALUE_RECEIVED, value).sendToTarget()
             }
 
             override fun onDeviceNameObtained(@NotNull deviceName: String) {

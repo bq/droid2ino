@@ -123,6 +123,10 @@ public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity 
             BaseBluetoothConnectionActivity.this.onMessageReceived(message);
          }
 
+         @Override public void onValueReceived(@NotNull byte[] value) {
+            BaseBluetoothConnectionActivity.this.onValueReceived(value);
+         }
+
          @Override public void onDeviceNameObtained(@NotNull String deviceName) {
             BaseBluetoothConnectionActivity.this.onDeviceNameObtained(deviceName);
          }
@@ -237,6 +241,15 @@ public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity 
     */
    protected void onMessageReceived(String message) {
       Log.d(LOG_TAG, "Message received: " + message);
+   }
+
+   /**
+    * Callback that will be invoked when a new value is received.
+    *
+    * @param value new byte[] value
+    */
+   protected void onValueReceived(byte[] value) {
+      Log.d(LOG_TAG, "Value received: " + value);
    }
 
    /**

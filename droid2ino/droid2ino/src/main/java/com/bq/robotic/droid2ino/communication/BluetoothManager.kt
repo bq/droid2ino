@@ -398,7 +398,7 @@ class BluetoothManager(ctx: Context) {
 
     // The Handler that gets information back from the BluetoothConnectService
     private val communicationHandler by lazy {
-        object : Handler() {
+        @SuppressLint("HandlerLeak") object : Handler() {
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
                     Droid2InoConstants.MESSAGE_STATE_CHANGE -> {
@@ -429,6 +429,12 @@ class BluetoothManager(ctx: Context) {
                         // construct a string from the valid bytes in the buffer
                         if (msg.obj is String)
                             btCommunicationListener?.onMessageReceived(msg.obj as String)
+
+                    }
+
+                    Droid2InoConstants.VALUE_RECEIVED -> {
+                        if (msg.obj is ByteArray)
+                            btCommunicationListener?.onValueReceived(msg.obj as ByteArray)
 
                     }
 

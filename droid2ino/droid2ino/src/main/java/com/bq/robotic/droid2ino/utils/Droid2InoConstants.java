@@ -41,6 +41,7 @@ public class Droid2InoConstants {
    public static final int MESSAGE_SENT = 3;
    public static final int MESSAGE_DEVICE_NAME = 4;
    public static final int MESSAGE_ERROR = 5;
+   public static final int VALUE_RECEIVED = 6;
 
    /**
     * Key names received from the BluetoothConnection Handler

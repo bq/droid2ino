@@ -41,4 +41,8 @@ public abstract class BaseBluetoothSendOnlyActivity extends BaseBluetoothConnect
    @Override protected void onMessageReceived(String message) {
       // Do nothing. This connection will be simplex, we shouldn't read anything from the connected device.
    }
+
+   @Override protected void onValueReceived(byte[] value) {
+      // Do nothing. This connection will be simplex, we shouldn't read anything from the connected device.
+   }
 }
