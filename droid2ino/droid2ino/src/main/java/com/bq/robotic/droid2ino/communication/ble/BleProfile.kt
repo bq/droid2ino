@@ -32,7 +32,7 @@ import java.util.*
 data class BleProfile(val customService: UUID?,
                       val customReadCharacteristic: UUID?,
                       val customWriteCharacteristic: UUID?,
-                      val preferredMtu: Int = 512) {
+                      val preferredMtu: Int? = 512) {
     // These 3 UUIDs are generic to all BLE devices, check
     // [https://www.bluetooth.com/specifications/gatt/characteristics] for the full list.
     // For generic access the correspondent short UUID would be 1800, but in Android we need the full UUID:

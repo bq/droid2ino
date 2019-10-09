@@ -27,8 +27,8 @@ import android.bluetooth.*
 import android.bluetooth.BluetoothGatt.*
 import android.content.Context
 import android.os.Build
-import android.support.annotation.RequiresApi
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.bq.robotic.droid2ino.utils.GsonValidator
 import java.util.*
 
@@ -38,6 +38,9 @@ private const val GATT_ENQUEUE_DELAY_MS = 150L
 private const val DEFAULT_MSG_DATA_SIZE = 20 // 20 bytes
 private const val MSG_DATA_MARGIN_SIZE = 3 // 3 bytes
 private const val SHOULD_REQUEST_MTU_CHANGE = false
+
+private val averageConnectionIntervalList = mutableListOf<Long>()
+private var lastMessageTimestamp = 0L
 
 /**
  * This class does all the work for setting up and managing Bluetooth connections with other devices
@@ -170,7 +173,7 @@ class GattClient(private val bleProfile: BleProfile) {
                         state = State.CONNECTED_NOT_CONFIGURED
 
                         // Try to request the increase of MTU, if it fails, discover directly the services
-                        if (SHOULD_REQUEST_MTU_CHANGE/* && gatt.requestMtu(PREFERRED_MTU)*/) {
+                        if (SHOULD_REQUEST_MTU_CHANGE && bleProfile.preferredMtu != null/* && gatt.requestMtu(PREFERRED_MTU)*/) {
                             state = State.REQUESTING_MTU
 
                             // TODO: Check if don't trust in the [onMtuChanged] callback being called
@@ -224,7 +227,8 @@ class GattClient(private val bleProfile: BleProfile) {
                     val service = gatt.getService(it)
 
                     if (service == null) {
-                        Log.e(LOG_TAG, "Error discovering custom service: ${gattErrorToString(status)}")
+                        Log.e(LOG_TAG, "Error discovering custom service with UUID = $it: ${gattErrorToString(status)}")
+                        Log.v(LOG_TAG, "Services available are = ${gatt.services.map {gattService -> gattService.uuid}}")
                         state = State.ERROR_DISCOVERING_SERVICES
                         return
                     } else {
@@ -431,9 +435,28 @@ class GattClient(private val bleProfile: BleProfile) {
         Log.d(LOG_TAG, "Custom characteristic message obtained: $value")
 
         if (value.isNotEmpty()) {
+            val timestamp = System.currentTimeMillis()
+            val latency = timestamp - lastMessageTimestamp
+            lastMessageTimestamp = timestamp
+            Log.w(LOG_TAG, "timestamp = $timestamp and latency = $latency")
+            addNewAverageConnectionIntervalItem(latency)
+
                 lastRequestStatus = RequestStatus.MESSAGE_RECEIVED_FROM_DEVICE
                 eventListener?.onValueReceived(value)
         }
+    }
+
+    private fun addNewAverageConnectionIntervalItem(newLatency: Long) {
+        with (averageConnectionIntervalList) {
+            if (size == 50) {
+                // Remove oldest item
+                removeAt(lastIndex)
+            }
+
+            add(0, newLatency)
+        }
+
+        Log.w(LOG_TAG, "interval average = ${averageConnectionIntervalList.average()}")
     }
 
     private fun readDeviceNameCharacteristic(characteristic: BluetoothGattCharacteristic) {

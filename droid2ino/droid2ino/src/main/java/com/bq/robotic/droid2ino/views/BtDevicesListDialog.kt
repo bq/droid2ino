@@ -30,8 +30,6 @@ import android.content.DialogInterface
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.TabLayout
-import android.support.v4.app.DialogFragment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -48,6 +46,8 @@ import com.bq.robotic.droid2ino.communication.btsocket.BtSocketScanner
 import com.bq.robotic.droid2ino.utils.Droid2InoConstants
 import com.bq.robotic.droid2ino.utils.LocationUtils
 import android.view.animation.RotateAnimation
+import androidx.fragment.app.DialogFragment
+import com.google.android.material.tabs.TabLayout
 
 class BtDevicesListDialog : DialogFragment() {
     private val LOG_TAG = this.javaClass.simpleName
@@ -158,7 +158,7 @@ class BtDevicesListDialog : DialogFragment() {
         }
     }
 
-    override fun onCancel(dialog: DialogInterface?) {
+    override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
         listener?.onCancel()
     }
@@ -171,17 +171,17 @@ class BtDevicesListDialog : DialogFragment() {
         return dialog
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater?.inflate(R.layout.selectable_bt_type_device_list, container, false)
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         arguments?.let {
             showOneBtOption = it.getBoolean(SHOW_ONE_BT_OPTION_ARG)
             (it.getSerializable(BT_SCANNER_TYPE_ARG) as BtConnectionType?)?.let {
-                selectBtScannerType(activity, it)
+                selectBtScannerType(activity!!, it)
             }
         }
 
@@ -194,7 +194,7 @@ class BtDevicesListDialog : DialogFragment() {
         super.onResume()
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         setLayoutSize()
     }
@@ -204,11 +204,11 @@ class BtDevicesListDialog : DialogFragment() {
         val height = RelativeLayout.LayoutParams.WRAP_CONTENT
 
         val width = if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE)
-                    activity.resources.getDimensionPixelSize(R.dimen.dialog_width_land)
+                    activity!!.resources.getDimensionPixelSize(R.dimen.dialog_width_land)
                 else
-                    activity.resources.getDimensionPixelSize(R.dimen.dialog_width_portrait)
+                    activity!!.resources.getDimensionPixelSize(R.dimen.dialog_width_portrait)
 
-        dialog.window!!.setLayout(width, height)
+        dialog!!.window!!.setLayout(width, height)
     }
 
     private fun initCustomView(contentView: View) {
@@ -224,8 +224,8 @@ class BtDevicesListDialog : DialogFragment() {
             addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab?) {
                     when (tab) {
-                        btSocketSelectorTab -> selectBtScannerType(activity, BtConnectionType.BT_SOCKET)
-                        bleSelectorTab -> selectBtScannerType(activity, BtConnectionType.BLE)
+                        btSocketSelectorTab -> selectBtScannerType(activity!!, BtConnectionType.BT_SOCKET)
+                        bleSelectorTab -> selectBtScannerType(activity!!, BtConnectionType.BLE)
                     }
                 }
 
@@ -247,8 +247,8 @@ class BtDevicesListDialog : DialogFragment() {
         emptyScannedDevicesListItem = contentView.findViewById(R.id.scanned_devices_empty_item)
 
         // Initialize array adapters. One for already paired devices and one for newly discovered devices
-        pairedDevicesArrayAdapter = ArrayAdapter(context, R.layout.device_name)
-        scannedDevicesArrayAdapter = ArrayAdapter(context, R.layout.device_name)
+        pairedDevicesArrayAdapter = ArrayAdapter(context!!, R.layout.device_name)
+        scannedDevicesArrayAdapter = ArrayAdapter(context!!, R.layout.device_name)
 
         // Find and set up the ListView for paired devices
         val pairedListView = contentView.findViewById(R.id.paired_devices) as ListView
@@ -280,7 +280,7 @@ class BtDevicesListDialog : DialogFragment() {
 
         if (currentBtScanner == null || btScannerType == null) {
             // In case `selectBtScannerType()` isn't being called yet
-            selectBtScannerType(activity, btScannerType ?: BtConnectionType.DEFAULT)
+            selectBtScannerType(activity!!, btScannerType ?: BtConnectionType.DEFAULT)
         } else {
             updateBtTypeSelectorViews(btScannerType!!)
             obtainBtDevices(contentView)

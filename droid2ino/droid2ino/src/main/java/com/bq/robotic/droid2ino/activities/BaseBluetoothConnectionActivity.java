@@ -26,7 +26,6 @@ package com.bq.robotic.droid2ino.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -41,6 +40,8 @@ import com.bq.robotic.droid2ino.utils.Droid2InoConstants;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity {
 
@@ -257,8 +258,14 @@ public abstract class BaseBluetoothConnectionActivity extends AppCompatActivity 
     */
    protected void onDeviceNameObtained(String deviceName) {
       connectedDeviceName = deviceName;
-      Toast.makeText(getApplicationContext(), getString(R.string.connected_to) + connectedDeviceName,
-         Toast.LENGTH_SHORT).show();
+
+      runOnUiThread(new Runnable() {
+         @Override public void run() {
+            Toast.makeText(getApplicationContext(), getString(R.string.connected_to) + connectedDeviceName,
+               Toast.LENGTH_SHORT).show();
+         }
+      });
+
    }
 
    /**

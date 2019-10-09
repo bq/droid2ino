@@ -32,6 +32,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
+import android.os.HandlerThread
 import com.bq.robotic.droid2ino.utils.Droid2InoConstants
 import com.bq.robotic.droid2ino.utils.Droid2InoConstants.ConnectionState
 import android.os.Message
@@ -137,7 +138,10 @@ class BluetoothManager(ctx: Context) {
         Log.d(LOG_TAG, "Preparing the BT environment")
         currentBtController = when (btConnectionType) {
             BtConnectionType.BT_SOCKET -> BtSocketController(btAdapter)
-            BtConnectionType.BLE -> BleController(btAdapter)
+            BtConnectionType.BLE ->
+                customBleProfileRequested?.let {
+                    BleController(btAdapter, it)
+                } ?: BleController(btAdapter)
         }
 
         currentBtController?.let {
@@ -145,10 +149,6 @@ class BluetoothManager(ctx: Context) {
 
             if (btConnectionType == BtConnectionType.BT_SOCKET && it is BtSocketController) {
                 it.setDuplexConnection(isBtSocketDuplexRequested)
-
-            } else if (btConnectionType == BtConnectionType.BLE && it is BleController
-                       && customBleProfileRequested != null) {
-                it.bleProfile = customBleProfileRequested!!
             }
         }
     }
@@ -195,7 +195,7 @@ class BluetoothManager(ctx: Context) {
      */
     fun sendMessage(messageBuffer: ByteArray) = currentBtController?.sendMessage(messageBuffer)
 
-    private fun selectBtConnectionType(connectionType: BluetoothManager.BtConnectionType) {
+    private fun selectBtConnectionType(connectionType: BtConnectionType) {
         if (connectionType == btConnectionType) return
 
         btConnectionType = connectionType
@@ -259,7 +259,7 @@ class BluetoothManager(ctx: Context) {
      * The [com.bq.robotic.droid2ino.communication.ble.BqZumCoreProfile] is the default [BleProfile] used.
      * Api version JELLY_BEAN_MR2 is required for using BLE.
      */
-    fun configureBleConnectionType(bleProfile: BleProfile? = null) {
+    fun configureBleConnectionType(bleProfile: BleProfile? = customBleProfileRequested) {
         if (bleProfile != customBleProfileRequested) {
             customBleProfileRequested = bleProfile
 
@@ -398,7 +398,10 @@ class BluetoothManager(ctx: Context) {
 
     // The Handler that gets information back from the BluetoothConnectService
     private val communicationHandler by lazy {
-        @SuppressLint("HandlerLeak") object : Handler() {
+        val thread = HandlerThread("BT_bg_thread")
+        thread.start()
+
+        object : Handler(thread.looper) {
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
                     Droid2InoConstants.MESSAGE_STATE_CHANGE -> {

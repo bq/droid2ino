@@ -24,18 +24,19 @@
 package com.bq.robotic.droid2ino.views
 
 import android.content.Context
-import android.support.annotation.ColorInt
-import android.support.annotation.ColorRes
-import android.support.v4.content.ContextCompat
+
 import android.widget.ImageButton
 import android.widget.TextView
 import android.view.View
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
-import android.support.annotation.DrawableRes
-import android.support.design.widget.TabLayout
-import android.support.v4.graphics.drawable.DrawableCompat
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
+import com.google.android.material.tabs.TabLayout
 
 /**
  * Utils class for style the components of the scanned bluetooth devices dialog [BtDevicesListDialog].
@@ -103,7 +104,7 @@ data class DevicesListDialogStyle(val titleView: TextView,
      * Same method as [setBtSelectorTabIcon] but using resources ids instead the resources themselves.
      */
     fun setBtSelectorTabIconRes(context: Context, @DrawableRes backgroundDrawableRes: Int) {
-        setBtSelectorTabIcon(ContextCompat.getDrawable(context, backgroundDrawableRes))
+        setBtSelectorTabIcon(ContextCompat.getDrawable(context, backgroundDrawableRes)!!)
     }
 
     /**

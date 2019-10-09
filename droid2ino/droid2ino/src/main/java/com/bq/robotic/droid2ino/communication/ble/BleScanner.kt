@@ -33,7 +33,7 @@ import com.bq.robotic.droid2ino.communication.BtScanner
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanSettings
 import android.os.Build
-import android.support.annotation.RequiresApi
+import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class BleScanner: BtScanner {

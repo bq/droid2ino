@@ -27,8 +27,8 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.os.Build
 import android.os.Handler
-import android.support.annotation.RequiresApi
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.bq.robotic.droid2ino.R
 import com.bq.robotic.droid2ino.communication.BtControllerInterface
 import com.bq.robotic.droid2ino.utils.ConnectionErrorFeedback
@@ -38,10 +38,10 @@ import org.jetbrains.annotations.NotNull
 import java.io.IOException
 
 @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-class BleController(private val btAdapter: BluetoothAdapter): BtControllerInterface {
+class BleController(private val btAdapter: BluetoothAdapter,
+                    val bleProfile: BleProfile = BqZumCoreProfile.PROFILE): BtControllerInterface {
     private val LOG_TAG = this.javaClass.simpleName
 
-    var bleProfile: BleProfile = BqZumCoreProfile.PROFILE
     private val gattClient by lazy { GattClient(bleProfile) }
 
     override fun prepareBtEnvironment(context: Context, communicationHandler: Handler) {
